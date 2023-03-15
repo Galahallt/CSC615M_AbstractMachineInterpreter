@@ -99,7 +99,7 @@
             </AnchorPane>
             <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="402.0" prefWidth="385.0">
                <children>
-                  <CodeArea fx:id="caMachineDef" layoutY="28.0" prefHeight="358.0" prefWidth="386.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-0.7999999999999545" AnchorPane.topAnchor="28.0" />
+                  <CodeArea fx:id="caMachineDef" layoutY="28.0" lineHighlighterOn="true" prefHeight="358.0" prefWidth="386.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-0.7999999999999545" AnchorPane.topAnchor="28.0" />
                   <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="405.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Machine Definition" textAlignment="CENTER" AnchorPane.bottomAnchor="374.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <font>
                         <Font name="System Bold" size="12.0" />

@@ -4,6 +4,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
@@ -38,7 +39,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         caMachineDef.setParagraphGraphicFactory(LineNumberFactory.get(caMachineDef));
-        caMachineDef.setContextMenu();
+        caMachineDef.setLineHighlighterFill(Color.WHITESMOKE);
     }
 
     // -------------------- Action Events -------------------- //
