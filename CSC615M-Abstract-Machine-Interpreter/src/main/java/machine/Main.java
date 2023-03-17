@@ -20,7 +20,7 @@ public class Main extends Application {
 
         window.setOnCloseRequest(e -> {e.consume(); closeProgram();});
 
-        Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/main.fxml"));
 
         Scene scene = new Scene(root);
         window.setScene(scene);

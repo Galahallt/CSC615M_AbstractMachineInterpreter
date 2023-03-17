@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
@@ -12,6 +13,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
+    // -------------------- Panes -------------------- //
+    public VirtualizedScrollPane vspMachineDef;
     // -------------------- Code Area -------------------- //
     public CodeArea caMachineDef;
 
@@ -46,11 +49,27 @@ public class Controller implements Initializable {
 
     // Machine Definition
     public void handleEditClick() {
+
         System.out.println("Edit");
+
+        // set buttons disable false
+        vspMachineDef.setDisable(false);
+        btnSave.setDisable(false);
+
+        // set buttons disable true
+        btnEdit.setDisable(true);
     }
 
     public void handleSaveClick() {
+        System.out.println(caMachineDef.getText().strip());
         System.out.println("Save");
+
+        // set buttons disable true
+        vspMachineDef.setDisable(true);
+        btnSave.setDisable(true);
+
+        // set buttons disable false
+        btnEdit.setDisable(false);
     }
 
     // Controls
