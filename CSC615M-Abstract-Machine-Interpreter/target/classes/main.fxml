@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.fxmisc.flowless.*?>
+<?import org.fxmisc.richtext.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="machine.Controller">
+   <children>
+      <MenuBar layoutY="2.0" prefHeight="26.0" prefWidth="1366.0" AnchorPane.bottomAnchor="740.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <SplitPane dividerPositions="0.19143946056874814, 0.3929932571093521, 0.6802990325417766" layoutY="363.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="404.0" prefWidth="1366.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="363.0">
+        <items>
+          <AnchorPane minHeight="-Infinity" minWidth="100.0" prefHeight="397.0" prefWidth="320.0">
+               <children>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" layoutY="27.0" prefHeight="376.0" prefWidth="234.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="27.0">
+                     <content>
+                        <TableView fx:id="tblRules" prefHeight="385.0" prefWidth="350.0">
+                          <columns>
+                            <TableColumn prefWidth="35.0" text="State" />
+                            <TableColumn prefWidth="75.0" text="Input" />
+                              <TableColumn prefWidth="75.0" text="Output" />
+                              <TableColumn prefWidth="75.0" text="Next State" />
+                              <TableColumn prefWidth="78.0" text="Command" />
+                          </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </content>
+                  </ScrollPane>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="236.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Rules" textAlignment="CENTER" AnchorPane.bottomAnchor="374.4" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Label>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="-Infinity" minWidth="150.0" prefHeight="402.0" prefWidth="310.0">
+               <children>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" layoutX="1.0" layoutY="25.0" prefHeight="376.0" prefWidth="253.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="25.0">
+                     <content>
+                        <TableView fx:id="tblStepLogs" prefHeight="386.0" prefWidth="379.0">
+                           <columns>
+                              <TableColumn minWidth="-Infinity" prefWidth="10.0" text="Step" />
+                              <TableColumn minWidth="-Infinity" prefWidth="20.0" text="Input" />
+                              <TableColumn prefWidth="60.0" text="Output" />
+                              <TableColumn prefWidth="75.0" text="Prev State" />
+                              <TableColumn prefWidth="75.0" text="Next State" />
+                              <TableColumn prefWidth="71.0" text="Command" />
+                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </content>
+                  </ScrollPane>
+                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="1.0" prefHeight="28.0" prefWidth="253.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Step Logs" textAlignment="CENTER" AnchorPane.bottomAnchor="374.4" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.799999999999983" AnchorPane.topAnchor="0.0">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Label>
+               </children>
+            </AnchorPane>
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="402.0" prefWidth="385.0">
+               <children>
+                   <VirtualizedScrollPane fx:id="vspMachineDef" layoutY="28.0" prefHeight="358.0" prefWidth="386.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0">
+                        <content>
+                           <CodeArea fx:id="caMachineDef" lineHighlighterOn="true" prefHeight="358.0" prefWidth="386.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-0.7999999999999545" AnchorPane.topAnchor="28.0" />
+                        </content>
+                   </VirtualizedScrollPane>
+
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="405.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Machine Definition" textAlignment="CENTER" AnchorPane.bottomAnchor="374.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Label>
+                  <Button fx:id="btnEdit" accessibleText="confirms machine definition to be used" alignment="CENTER" contentDisplay="CENTER" disable="true" graphicTextGap="0.0" layoutX="341.0" layoutY="4.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleEditClick" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" AnchorPane.bottomAnchor="378.4" AnchorPane.rightAnchor="43.80000000000001" AnchorPane.topAnchor="4.0">
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/edit.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnSave" accessibleText="confirms machine definition to be used" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="371.0" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleSaveClick" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" AnchorPane.bottomAnchor="378.4" AnchorPane.rightAnchor="13.800000000000011" AnchorPane.topAnchor="4.0">
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/save.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+               </children>
+            </AnchorPane>
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="402.0" prefWidth="433.0">
+               <children>
+                  <Label contentDisplay="RIGHT" layoutX="24.0" layoutY="53.0" prefHeight="16.0" prefWidth="382.0" text="Input String:" AnchorPane.bottomAnchor="321.79999999999995" AnchorPane.leftAnchor="26.0" AnchorPane.rightAnchor="25.200000000000045" AnchorPane.topAnchor="55.00000000000002">
+                     <graphic>
+                        <TextField fx:id="tfInputString" prefHeight="25.0" prefWidth="298.0" />
+                     </graphic>
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="-1.0" layoutY="147.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="26.0" prefWidth="430.0" textAlignment="CENTER">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <ScrollPane layoutX="-2.0" layoutY="174.0" prefHeight="227.0" prefWidth="434.0" vbarPolicy="ALWAYS">
+                     <content>
+                        <TableView fx:id="tblMemory" prefHeight="230.0" prefWidth="426.0">
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </content>
+                  </ScrollPane>
+                  <Label alignment="CENTER" contentDisplay="CENTER" layoutY="146.0" prefHeight="28.0" prefWidth="434.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Memory" textAlignment="CENTER" AnchorPane.bottomAnchor="228.0" AnchorPane.leftAnchor="-0.7999999999999545" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="146.39999999999998">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Label>
+                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="-2.0" prefHeight="28.0" prefWidth="434.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Controls" textAlignment="CENTER" AnchorPane.bottomAnchor="374.4" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="1.2000000000000455" AnchorPane.topAnchor="0.0">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Label>
+                  <Button fx:id="btnPlay" layoutX="158.0" layoutY="94.0" mnemonicParsing="false" onAction="#handlePlayClick" prefHeight="38.0" prefWidth="118.0" text="Play">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="btnStep" layoutX="289.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleStepClick" prefHeight="38.0" prefWidth="118.0" text="Step">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="btnReset" layoutX="26.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="38.0" prefWidth="118.0" text="Reset">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Button>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+      <Label alignment="CENTER" contentDisplay="TOP" layoutX="69.0" layoutY="44.0" prefHeight="76.0" prefWidth="1227.0" text="ABSTRACT MACHINE INTERPRETER" AnchorPane.bottomAnchor="648.0" AnchorPane.leftAnchor="69.0" AnchorPane.rightAnchor="69.79999999999995" AnchorPane.topAnchor="44.0">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
+      <Label contentDisplay="TOP" layoutX="69.0" layoutY="245.0" prefHeight="85.0" prefWidth="1227.0" text="OUTPUT" AnchorPane.leftAnchor="69.0" AnchorPane.rightAnchor="69.79999999999995" AnchorPane.topAnchor="245.0">
+         <graphic>
+            <TextField prefHeight="26.0" prefWidth="1225.0" style="-fx-border-color: black;">
+               <font>
+                  <Font size="28.0" />
+               </font>
+            </TextField>
+         </graphic>
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
+      <Label contentDisplay="TOP" layoutX="69.0" layoutY="126.0" prefHeight="85.0" prefWidth="1227.0" text="INPUT" AnchorPane.leftAnchor="69.0" AnchorPane.rightAnchor="69.79999999999995" AnchorPane.topAnchor="126.0">
+         <graphic>
+            <TextField prefHeight="26.0" prefWidth="1225.0" style="-fx-border-color: black;">
+               <font>
+                  <Font size="28.0" />
+               </font>
+            </TextField>
+         </graphic>
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>
