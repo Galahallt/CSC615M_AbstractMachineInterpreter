@@ -12,16 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainParser {
-    public static void parseInput(String input)
+    public static void main(String[] args)
     {
         try {
-            // CharStream cs = CharStreams.fromFileName("src/main/resources/MP_Grammar.txt");
-            InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-            AMGrammarLexer amLexer = new AMGrammarLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+            CharStream cs = CharStreams.fromFileName("src/main/resources/MP_Grammar.txt");
+//            InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
+//            AMGrammarLexer amLexer = new AMGrammarLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+            AMGrammarLexer amLexer = new AMGrammarLexer(cs);
             CommonTokenStream commonTokenStream = new CommonTokenStream(amLexer);
-
-            List<String> info = new ArrayList<>();
-            AMGrammarBaseListener listener = new AMGrammarBaseListener(info);
+            AMGrammarBaseListener listener = new AMGrammarBaseListener();
 
             AMGrammarParser amParser = new AMGrammarParser(commonTokenStream);
             ParseTree tree = amParser.start();

@@ -103,11 +103,9 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
-	 *
-	 * @return
 	 */
-	@Override public String enterState_behavior(AMGrammarParser.State_behaviorContext ctx) {
-		return ctx.getText();
+	@Override public void enterState_behavior(AMGrammarParser.State_behaviorContext ctx) {
+		System.out.println("State");
 	}
 	/**
 	 * {@inheritDoc}
@@ -120,9 +118,35 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterState(AMGrammarParser.StateContext ctx) {
-		System.out.println(ctx.getText());
+	@Override public void enterTransition(AMGrammarParser.TransitionContext ctx) {
+		System.out.println("transit");
 	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTransition(AMGrammarParser.TransitionContext ctx) {
+		System.out.println("ExitTransit");
+	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCommand(AMGrammarParser.CommandContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCommand(AMGrammarParser.CommandContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterState(AMGrammarParser.StateContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -134,13 +158,43 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransition(AMGrammarParser.TransitionContext ctx) { }
+	@Override public void enterInput(AMGrammarParser.InputContext ctx) {
+		System.out.println("input");
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTransition(AMGrammarParser.TransitionContext ctx) { }
+	@Override public void exitInput(AMGrammarParser.InputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOutput(AMGrammarParser.OutputContext ctx) {
+		System.out.println("output");
+	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOutput(AMGrammarParser.OutputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNext_state(AMGrammarParser.Next_stateContext ctx) {
+		System.out.println("next");
+	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNext_state(AMGrammarParser.Next_stateContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -69,16 +69,34 @@ public interface AMGrammarListener extends ParseTreeListener {
 	void exitLogic_section(AMGrammarParser.Logic_sectionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AMGrammarParser#state_behavior}.
-	 *
 	 * @param ctx the parse tree
-	 * @return
 	 */
-	String enterState_behavior(AMGrammarParser.State_behaviorContext ctx);
+	void enterState_behavior(AMGrammarParser.State_behaviorContext ctx);
 	/**
 	 * Exit a parse tree produced by {@link AMGrammarParser#state_behavior}.
 	 * @param ctx the parse tree
 	 */
 	void exitState_behavior(AMGrammarParser.State_behaviorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AMGrammarParser#transition}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransition(AMGrammarParser.TransitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AMGrammarParser#transition}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransition(AMGrammarParser.TransitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AMGrammarParser#command}.
+	 * @param ctx the parse tree
+	 */
+	void enterCommand(AMGrammarParser.CommandContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AMGrammarParser#command}.
+	 * @param ctx the parse tree
+	 */
+	void exitCommand(AMGrammarParser.CommandContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AMGrammarParser#state}.
 	 * @param ctx the parse tree
@@ -90,13 +108,33 @@ public interface AMGrammarListener extends ParseTreeListener {
 	 */
 	void exitState(AMGrammarParser.StateContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AMGrammarParser#transition}.
+	 * Enter a parse tree produced by {@link AMGrammarParser#input}.
 	 * @param ctx the parse tree
 	 */
-	void enterTransition(AMGrammarParser.TransitionContext ctx);
+	void enterInput(AMGrammarParser.InputContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AMGrammarParser#transition}.
+	 * Exit a parse tree produced by {@link AMGrammarParser#input}.
 	 * @param ctx the parse tree
 	 */
-	void exitTransition(AMGrammarParser.TransitionContext ctx);
+	void exitInput(AMGrammarParser.InputContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AMGrammarParser#output}.
+	 * @param ctx the parse tree
+	 */
+	void enterOutput(AMGrammarParser.OutputContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AMGrammarParser#output}.
+	 * @param ctx the parse tree
+	 */
+	void exitOutput(AMGrammarParser.OutputContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AMGrammarParser#next_state}.
+	 * @param ctx the parse tree
+	 */
+	void enterNext_state(AMGrammarParser.Next_stateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AMGrammarParser#next_state}.
+	 * @param ctx the parse tree
+	 */
+	void exitNext_state(AMGrammarParser.Next_stateContext ctx);
 }

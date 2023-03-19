@@ -15,6 +15,13 @@ public class Rule {
         this.command = command;
     }
 
+    public Rule (String state,String input,String nextState,String command) {
+        this.state = state;
+        this.input = input;
+        this.nextState = nextState;
+        this.command = command;
+    }
+
 
     public String getState() {
         return state;

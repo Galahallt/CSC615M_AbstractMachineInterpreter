@@ -66,7 +66,7 @@ public class Controller implements Initializable {
         System.out.println("Save");
 
         // parse content
-        MainParser.parseInput(caMachineDef.getText().strip());
+        //MainParser.parseInput(caMachineDef.getText().strip());
 
         // set buttons disable true
         vspMachineDef.setDisable(true);

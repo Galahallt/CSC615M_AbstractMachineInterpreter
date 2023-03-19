@@ -10,9 +10,15 @@ queue           : (QUEUE QUEUE_NAME)+;
 tape            : (TAPE TAPE_NAME)+;
 
 logic_section   : LOGIC state_behavior+;
-state_behavior  : state COMMAND transition+;
-state           : STATE_NAME RBRACK;
-transition      : LPAREN INPUT (FRWRDSLASH OUTPUT)? COMMA (STATE_NAME RPAREN COMMA | STATE_NAME RPAREN);
+state_behavior  : state RBRACK command transition+;
+transition      : LPAREN input (FRWRDSLASH output)? COMMA (next_state RPAREN COMMA | next_state RPAREN);
+
+command         : COMMAND;
+state           : STATE_NAME;
+input           : INPUT;
+output          : OUTPUT;
+next_state      : NEXT_STATE;
+
 
 /**
   *  Lexer Rules
@@ -44,17 +50,21 @@ COMMAND     : ('SCAN'
             | LEFT
             | RIGHT);
 
-STATE_NAME  : {_input.LA(2) == ']' || _input.LA(2) == ')'}? (UPPERCASE NUMBER
+INPUT       : {_input.LA(-1) == '('}? (LOWERCASE | UPPERCASE | NUMBER | SHARP) ;
+
+OUTPUT      : {_input.LA(-1) == '/'}? (LOWERCASE | UPPERCASE | NUMBER | SHARP) ;
+
+NEXT_STATE  : {_input.LA(-1) == ','}? (UPPERCASE NUMBER
             | LOWERCASE NUMBER
             | UPPERCASE
             | LOWERCASE)+
             | 'accept'
             | 'reject';
 
-
-INPUT       : {_input.LA(-1) == '('}? (LOWERCASE | UPPERCASE | NUMBER | SHARP) ;
-
-OUTPUT      : {_input.LA(-1) == '/'}? (LOWERCASE | UPPERCASE | NUMBER | SHARP) ;
+STATE_NAME  : (UPPERCASE NUMBER
+            | LOWERCASE NUMBER
+            | UPPERCASE
+            | LOWERCASE)+;
 
 READ        : 'READ(' (STACK_NAME | QUEUE_NAME) ')';
 WRITE       : 'WRITE(' (STACK_NAME | QUEUE_NAME) ')';
