@@ -1,5 +1,6 @@
 package machine;
 
+import antlr.MainParser;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
@@ -64,6 +65,9 @@ public class Controller implements Initializable {
         System.out.println(caMachineDef.getText().strip());
         System.out.println("Save");
 
+        // parse content
+        MainParser.parseInput(caMachineDef.getText().strip());
+
         // set buttons disable true
         vspMachineDef.setDisable(true);
         btnSave.setDisable(true);
@@ -83,5 +87,10 @@ public class Controller implements Initializable {
 
     public void handleStepClick() {
         System.out.println("Step");
+    }
+
+    // -------------------- Parse Machine Definition -------------------- //
+    public void parseInput() {
+
     }
 }
