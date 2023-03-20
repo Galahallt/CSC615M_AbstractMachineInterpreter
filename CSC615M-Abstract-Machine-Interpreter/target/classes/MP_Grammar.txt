@@ -1,4 +1,15 @@
+.DATA
+STACK S1
+STACK S2
+STACK S3
 .LOGIC
-q0] SCAN (0,q0), (1,q1), (1,accept)
-q1] SCAN (0,q0), (1,q2)
-q2] SCAN (0,q0), (1,q1), (1,accept)
+A] WRITE(S1) (#,B)
+B] SCAN (a,C), (b,E)
+C] WRITE(S1) (X,B)
+D] WRITE(S2) (X,F)
+E] READ(S1) (X,D)
+F] SCAN (b,E), (c,G)
+G] READ(S2) (X,H)
+H] SCAN (c,G), (#,I)
+I] READ(S1) (#,J)
+J] READ(S2) (#,accept)
