@@ -15,13 +15,6 @@ public class Rule {
         this.command = command;
     }
 
-    public Rule (String state,String input,String nextState,String command) {
-        this.state = state;
-        this.input = input;
-        this.nextState = nextState;
-        this.command = command;
-    }
-
 
     public String getState() {
         return state;
@@ -41,5 +34,15 @@ public class Rule {
 
     public String getCommand() {
         return command;
+    }
+
+    @Override
+    public String toString() {
+        return ("\n==========================" +
+                "\nState: " + this.getState() +
+                "\nCommand: " + this.getCommand() +
+                "\nInput: " + this.getInput() +
+                "\nOutput: " + this.getOutput() +
+                "\nNext State: " + this.getNextState());
     }
 }

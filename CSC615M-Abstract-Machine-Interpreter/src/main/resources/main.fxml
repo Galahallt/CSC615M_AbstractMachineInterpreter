@@ -37,11 +37,11 @@
                      <content>
                         <TableView fx:id="tblRules" prefHeight="385.0" prefWidth="350.0">
                           <columns>
-                            <TableColumn prefWidth="35.0" text="State" />
-                            <TableColumn prefWidth="75.0" text="Input" />
-                              <TableColumn prefWidth="75.0" text="Output" />
-                              <TableColumn prefWidth="75.0" text="Next State" />
-                              <TableColumn prefWidth="78.0" text="Command" />
+                            <TableColumn fx:id="stateColumn" prefWidth="35.0" text="State" />
+                            <TableColumn fx:id="inputColumn" prefWidth="75.0" text="Input" />
+                              <TableColumn fx:id="outputColumn" prefWidth="75.0" text="Output" />
+                              <TableColumn fx:id="nextStateColumn" prefWidth="75.0" text="Next State" />
+                              <TableColumn fx:id="commandColumn" prefWidth="78.0" text="Command" />
                           </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -139,15 +139,13 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <ScrollPane layoutX="-2.0" layoutY="174.0" prefHeight="227.0" prefWidth="434.0" vbarPolicy="ALWAYS">
+                  <ScrollPane layoutX="-2.0" layoutY="174.0" prefHeight="227.0" prefWidth="434.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="1.1999999999999886" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="1.2000000000000455" AnchorPane.topAnchor="174.0">
                      <content>
-                        <TableView fx:id="tblMemory" prefHeight="230.0" prefWidth="426.0">
-                           <columnResizePolicy>
-                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy>
-                        </TableView>
-                     </content>
-                  </ScrollPane>
+                        <TextArea fx:id="taMemory" editable="false" prefHeight="226.0" prefWidth="418.0" wrapText="true">
+                           <font>
+                              <Font name="Courier New" size="14.0" />
+                           </font></TextArea>
+                     </content></ScrollPane>
                   <Label alignment="CENTER" contentDisplay="CENTER" layoutY="146.0" prefHeight="28.0" prefWidth="434.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Memory" textAlignment="CENTER" AnchorPane.bottomAnchor="228.0" AnchorPane.leftAnchor="-0.7999999999999545" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="146.39999999999998">
                      <font>
                         <Font name="System Bold" size="12.0" />
@@ -164,17 +162,17 @@
                         <Insets />
                      </opaqueInsets>
                   </Label>
-                  <Button fx:id="btnPlay" layoutX="158.0" layoutY="94.0" mnemonicParsing="false" onAction="#handlePlayClick" prefHeight="38.0" prefWidth="118.0" text="Play">
+                  <Button fx:id="btnPlay" disable="true" layoutX="158.0" layoutY="94.0" mnemonicParsing="false" onAction="#handlePlayClick" prefHeight="38.0" prefWidth="118.0" text="Play">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Button>
-                  <Button fx:id="btnStep" layoutX="289.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleStepClick" prefHeight="38.0" prefWidth="118.0" text="Step">
+                  <Button fx:id="btnStep" disable="true" layoutX="289.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleStepClick" prefHeight="38.0" prefWidth="118.0" text="Step">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Button>
-                  <Button fx:id="btnReset" layoutX="26.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="38.0" prefWidth="118.0" text="Reset">
+                  <Button fx:id="btnReset" disable="true" layoutX="26.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="38.0" prefWidth="118.0" text="Reset">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
@@ -188,29 +186,21 @@
             <Font name="System Bold" size="24.0" />
          </font>
       </Label>
-      <Label contentDisplay="TOP" layoutX="69.0" layoutY="245.0" prefHeight="85.0" prefWidth="1227.0" text="OUTPUT" AnchorPane.leftAnchor="69.0" AnchorPane.rightAnchor="69.79999999999995" AnchorPane.topAnchor="245.0">
-         <graphic>
-            <TextField prefHeight="26.0" prefWidth="1225.0" style="-fx-border-color: black;">
-               <font>
-                  <Font size="28.0" />
-               </font>
-            </TextField>
-         </graphic>
+      <Label contentDisplay="TOP" layoutX="69.0" layoutY="126.0" prefHeight="107.0" prefWidth="1227.0" text="INPUT" AnchorPane.leftAnchor="69.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="126.0">
          <font>
             <Font name="System Bold" size="24.0" />
          </font>
+         <graphic>
+            <InlineCssTextField fx:id="tfInput" alignment="CENTER" editable="false" prefHeight="70.0" prefWidth="1228.0" style="-fx-border-color: BLACK;" textInsertionStyle="" />
+         </graphic>
       </Label>
-      <Label contentDisplay="TOP" layoutX="69.0" layoutY="126.0" prefHeight="85.0" prefWidth="1227.0" text="INPUT" AnchorPane.leftAnchor="69.0" AnchorPane.rightAnchor="69.79999999999995" AnchorPane.topAnchor="126.0">
-         <graphic>
-            <TextField prefHeight="26.0" prefWidth="1225.0" style="-fx-border-color: black;">
-               <font>
-                  <Font size="28.0" />
-               </font>
-            </TextField>
-         </graphic>
+      <Label contentDisplay="TOP" layoutX="69.0" layoutY="240.0" prefHeight="107.0" prefWidth="1227.0" text="OUTPUT">
          <font>
             <Font name="System Bold" size="24.0" />
          </font>
+         <graphic>
+            <InlineCssTextField fx:id="tfOutput" alignment="CENTER" editable="false" prefHeight="70.0" prefWidth="1228.0" style="-fx-border-color: BLACK;" />
+         </graphic>
       </Label>
    </children>
 </AnchorPane>

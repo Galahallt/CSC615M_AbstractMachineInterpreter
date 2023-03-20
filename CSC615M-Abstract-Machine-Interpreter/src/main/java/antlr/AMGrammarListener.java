@@ -38,6 +38,16 @@ public interface AMGrammarListener extends ParseTreeListener {
 	 */
 	void exitStack(AMGrammarParser.StackContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link AMGrammarParser#stack_name}.
+	 * @param ctx the parse tree
+	 */
+	void enterStack_name(AMGrammarParser.Stack_nameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AMGrammarParser#stack_name}.
+	 * @param ctx the parse tree
+	 */
+	void exitStack_name(AMGrammarParser.Stack_nameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link AMGrammarParser#queue}.
 	 * @param ctx the parse tree
 	 */
@@ -48,6 +58,16 @@ public interface AMGrammarListener extends ParseTreeListener {
 	 */
 	void exitQueue(AMGrammarParser.QueueContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link AMGrammarParser#queue_name}.
+	 * @param ctx the parse tree
+	 */
+	void enterQueue_name(AMGrammarParser.Queue_nameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AMGrammarParser#queue_name}.
+	 * @param ctx the parse tree
+	 */
+	void exitQueue_name(AMGrammarParser.Queue_nameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link AMGrammarParser#tape}.
 	 * @param ctx the parse tree
 	 */
@@ -57,6 +77,16 @@ public interface AMGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTape(AMGrammarParser.TapeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AMGrammarParser#tape_name}.
+	 * @param ctx the parse tree
+	 */
+	void enterTape_name(AMGrammarParser.Tape_nameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AMGrammarParser#tape_name}.
+	 * @param ctx the parse tree
+	 */
+	void exitTape_name(AMGrammarParser.Tape_nameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AMGrammarParser#logic_section}.
 	 * @param ctx the parse tree

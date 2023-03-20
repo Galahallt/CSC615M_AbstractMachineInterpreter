@@ -1,7 +1,6 @@
 // Generated from AMGrammar.g4 by ANTLR 4.12.0
 package antlr;
 
-import machine.Memory;
 import machine.Rule;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -17,10 +16,17 @@ import java.util.List;
  */
 @SuppressWarnings("CheckReturnValue")
 public class AMGrammarBaseListener implements AMGrammarListener {
-	List<Memory> memoryList = new ArrayList<>();
+	List<String> memoryList = new ArrayList<>();
 	List<Rule> rulesList = new ArrayList<>();
 
-	public List<Memory> getMemoryList() {
+	String state;
+
+	String command;
+	String input;
+	String output;
+	String nextState;
+
+	public List<String> getMemoryList() {
 		return memoryList;
 	}
 
@@ -68,6 +74,21 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterStack_name(AMGrammarParser.Stack_nameContext ctx) {
+		System.out.println("enterStack: " + ctx.getText());
+		memoryList.add(ctx.getText());
+	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStack_name(AMGrammarParser.Stack_nameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterQueue(AMGrammarParser.QueueContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -80,6 +101,21 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterQueue_name(AMGrammarParser.Queue_nameContext ctx) {
+		System.out.println("enterQueue: " + ctx.getText());
+		memoryList.add(ctx.getText());
+	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitQueue_name(AMGrammarParser.Queue_nameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTape(AMGrammarParser.TapeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -87,6 +123,21 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTape(AMGrammarParser.TapeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTape_name(AMGrammarParser.Tape_nameContext ctx) {
+		System.out.println("enterTape: " + ctx.getText());
+		memoryList.add(ctx.getText());
+	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTape_name(AMGrammarParser.Tape_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -112,14 +163,17 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitState_behavior(AMGrammarParser.State_behaviorContext ctx) { }
+	@Override public void exitState_behavior(AMGrammarParser.State_behaviorContext ctx) {
+		state = "";
+		command = "";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterTransition(AMGrammarParser.TransitionContext ctx) {
-		System.out.println("transit");
+		System.out.println("enterTransit");
 	}
 	/**
 	 * {@inheritDoc}
@@ -127,26 +181,41 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTransition(AMGrammarParser.TransitionContext ctx) {
-		System.out.println("ExitTransit");
+		Rule rule = new Rule(state, input, output, nextState, command);
+		rulesList.add(rule);
+
+		// set string to null
+		input = null;
+		output = null;
+		nextState = null;
+
+		System.out.println("exitTransit");
 	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCommand(AMGrammarParser.CommandContext ctx) { }
+	@Override public void enterCommand(AMGrammarParser.CommandContext ctx) {
+		command = ctx.getText();
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCommand(AMGrammarParser.CommandContext ctx) { }
+	@Override public void exitCommand(AMGrammarParser.CommandContext ctx) {
+
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterState(AMGrammarParser.StateContext ctx) { }
+	@Override public void enterState(AMGrammarParser.StateContext ctx) {
+		state = ctx.getText();
+		System.out.println("enterState: " + ctx.getText());
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -159,7 +228,8 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterInput(AMGrammarParser.InputContext ctx) {
-		System.out.println("input");
+		System.out.println("enterInput: " + ctx.getText());
+		input = ctx.getText();
 	}
 	/**
 	 * {@inheritDoc}
@@ -174,6 +244,7 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 */
 	@Override public void enterOutput(AMGrammarParser.OutputContext ctx) {
 		System.out.println("output");
+		output = ctx.getText();
 	}
 	/**
 	 * {@inheritDoc}
@@ -187,7 +258,8 @@ public class AMGrammarBaseListener implements AMGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterNext_state(AMGrammarParser.Next_stateContext ctx) {
-		System.out.println("next");
+		System.out.println("nextState: " + ctx.getText());
+		nextState = ctx.getText();
 	}
 	/**
 	 * {@inheritDoc}

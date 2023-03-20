@@ -5,9 +5,12 @@ grammar AMGrammar;
   */
 start           : data_section? logic_section EOF;
 data_section    : DATA (stack | queue | tape);
-stack           : (STACK STACK_NAME)+;
-queue           : (QUEUE QUEUE_NAME)+;
-tape            : (TAPE TAPE_NAME)+;
+stack           : (STACK stack_name)+;
+stack_name      : STACK_NAME;
+queue           : (QUEUE queue_name)+;
+queue_name      : QUEUE_NAME;
+tape            : (TAPE tape_name)+;
+tape_name       : TAPE_NAME;
 
 logic_section   : LOGIC state_behavior+;
 state_behavior  : state RBRACK command transition+;
