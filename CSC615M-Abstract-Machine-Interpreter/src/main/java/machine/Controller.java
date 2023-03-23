@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.InlineCssTextField;
@@ -20,6 +21,12 @@ public class Controller implements Initializable {
     // -------------------- Highlighter Range -------------------- //
     int curChar = 1;
     int prevChar = 0;
+    // -------------------- Track current rule -------------------- //
+    ObservableList<Rule> highlightRow = FXCollections.observableArrayList();
+    String curInput;
+    String curState;
+    String prevState;
+    String initState;
     // -------------------- List -------------------- //
     List<Memory> memoryList = new ArrayList<>();
     // -------------------- Panes -------------------- //
@@ -122,13 +129,49 @@ public class Controller implements Initializable {
         // initialize rules
         tblRules.setItems(getRuleList(treeListener.getRulesList()));
 
+        // set row color while reading input string
+        /**
+         * CSS Colors
+         * accept: #28A745
+         * reading: #FFC107
+         * reject: #DC3545
+         */
+        tblRules.setRowFactory(new Callback<TableView<Rule>, TableRow<Rule>>() {
+            @Override public TableRow<Rule> call(TableView<Rule> param) {
+                return new TableRow<Rule>() {
+                    @Override protected void updateItem(Rule rule, boolean empty) {
+                        super.updateItem(rule, empty);
+
+                        if (rule == null) {
+                            setStyle("");
+                        } else if (rule.getState().equals(prevState) && rule.getInput().equals(curInput)) {
+                            curState = rule.getNextState();
+
+                            if (prevState.equals("accept")) {
+                                setStyle("-fx-background-color: #28A745;");
+                            } else {
+                                setStyle("-fx-background-color: #FFC107;");
+                            }
+                        } else {
+                            setStyle("");
+                        }
+                    }
+                };
+            }
+        });
+
+        // initialize initial state
+        initState = treeListener.getRulesList().get(0).getState();
+        curState = initState;
+        prevState = curState;
+
         // initialize memory
         for (String name : treeListener.getMemoryList()) {
             memoryList.add(new Memory(name, new ArrayList<String>()));
             taMemory.setText(taMemory.getText() + name + ": []\n");
         }
 
-        System.out.println(memoryList);
+        System.out.println(curState);
 
         // set buttons disable true
         vspMachineDef.setDisable(true);
@@ -174,10 +217,16 @@ public class Controller implements Initializable {
             btnEdit.setDisable(true);
         }
 
+        // update current character being read
+        if (prevChar <= tfInput.getText().length())  {
+            curInput = String.valueOf(tfInput.getText().charAt(prevChar));
+        }
+
+        prevState = curState;
+        List<Rule> items = new ArrayList<>(tblRules.getItems());
+        tblRules.getItems().setAll(items);
 
         updateHighlighter();
-
-        memoryList.get(0).write("#");
 
         updateTAMemory();
     }
@@ -227,11 +276,17 @@ public class Controller implements Initializable {
             prevChar = 0;
             curChar = 1;
 
+            // reset initial state and input
+            curInput = null;
+            curState = initState;
+
             // make play, reset, and edit buttons clickable again
             if (btnPlay.isDisabled() && btnReset.isDisabled() && btnEdit.isDisabled()){
                 btnPlay.setDisable(false);
                 btnReset.setDisable(false);
                 btnEdit.setDisable(false);
+
+
             }
         }
     }
