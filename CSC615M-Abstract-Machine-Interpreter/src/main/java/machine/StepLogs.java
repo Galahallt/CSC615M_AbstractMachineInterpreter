@@ -1,14 +1,15 @@
 package machine;
 
 public class StepLogs {
-    private int Step;
+    private int step;
     private String input;
     private String output;
     private String prevState;
     private String nextState;
     private String command;
 
-    public StepLogs(String input, String output, String prevState, String nextState, String command) {
+    public StepLogs(int step, String input, String output, String prevState, String nextState, String command) {
+        this.step = step;
         this.input = input;
         this.output = output;
         this.prevState = prevState;
@@ -17,7 +18,7 @@ public class StepLogs {
     }
 
     public int getStep() {
-        return Step;
+        return step;
     }
 
     public String getInput() {
@@ -41,6 +42,6 @@ public class StepLogs {
     }
 
     public void setStep(int step) {
-        Step = step;
+        this.step = step;
     }
 }

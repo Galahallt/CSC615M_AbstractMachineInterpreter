@@ -33,22 +33,18 @@
         <items>
           <AnchorPane minHeight="-Infinity" minWidth="100.0" prefHeight="397.0" prefWidth="320.0">
                <children>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" layoutY="27.0" prefHeight="376.0" prefWidth="234.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="27.0">
-                     <content>
-                        <TableView fx:id="tblRules" prefHeight="385.0" prefWidth="350.0">
-                          <columns>
-                            <TableColumn fx:id="stateColumn" prefWidth="35.0" text="State" />
-                            <TableColumn fx:id="inputColumn" prefWidth="75.0" text="Input" />
-                              <TableColumn fx:id="outputColumn" prefWidth="75.0" text="Output" />
-                              <TableColumn fx:id="nextStateColumn" prefWidth="75.0" text="Next State" />
-                              <TableColumn fx:id="commandColumn" prefWidth="78.0" text="Command" />
-                          </columns>
-                           <columnResizePolicy>
-                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy>
-                        </TableView>
-                     </content>
-                  </ScrollPane>
+                  <TableView fx:id="tblRules" focusTraversable="false" layoutY="28.0" prefHeight="374.0" prefWidth="258.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0">
+                    <columns>
+                      <TableColumn fx:id="stateColumn" prefWidth="35.0" text="State" />
+                      <TableColumn fx:id="inputColumn" prefWidth="75.0" text="Input" />
+                        <TableColumn fx:id="outputColumn" prefWidth="75.0" text="Output" />
+                        <TableColumn fx:id="nextStateColumn" prefWidth="75.0" text="Next State" />
+                        <TableColumn fx:id="commandColumn" prefWidth="78.0" text="Command" />
+                    </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
                   <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="236.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Rules" textAlignment="CENTER" AnchorPane.bottomAnchor="374.4" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <font>
                         <Font name="System Bold" size="12.0" />
@@ -61,23 +57,19 @@
             </AnchorPane>
           <AnchorPane minHeight="-Infinity" minWidth="150.0" prefHeight="402.0" prefWidth="310.0">
                <children>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" layoutX="1.0" layoutY="25.0" prefHeight="376.0" prefWidth="253.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="25.0">
-                     <content>
-                        <TableView fx:id="tblStepLogs" prefHeight="386.0" prefWidth="379.0">
-                           <columns>
-                              <TableColumn minWidth="-Infinity" prefWidth="10.0" text="Step" />
-                              <TableColumn minWidth="-Infinity" prefWidth="20.0" text="Input" />
-                              <TableColumn prefWidth="60.0" text="Output" />
-                              <TableColumn prefWidth="75.0" text="Prev State" />
-                              <TableColumn prefWidth="75.0" text="Next State" />
-                              <TableColumn prefWidth="71.0" text="Command" />
-                           </columns>
-                           <columnResizePolicy>
-                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy>
-                        </TableView>
-                     </content>
-                  </ScrollPane>
+                  <TableView fx:id="tblStepLogs" focusTraversable="false" layoutY="28.0" prefHeight="374.0" prefWidth="270.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0">
+                     <columns>
+                        <TableColumn fx:id="slStepColumn" minWidth="-Infinity" prefWidth="10.0" text="Step" />
+                        <TableColumn fx:id="slInputColumn" minWidth="-Infinity" prefWidth="20.0" text="Input" />
+                        <TableColumn fx:id="slOutputColumn" prefWidth="60.0" text="Output" />
+                        <TableColumn fx:id="slPrevStateColumn" prefWidth="75.0" text="Prev State" />
+                        <TableColumn fx:id="slNextStateColumn" prefWidth="75.0" text="Next State" />
+                        <TableColumn fx:id="slCommandColumn" prefWidth="71.0" text="Command" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
                   <Label alignment="CENTER" contentDisplay="CENTER" layoutX="1.0" prefHeight="28.0" prefWidth="253.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Step Logs" textAlignment="CENTER" AnchorPane.bottomAnchor="374.4" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.799999999999983" AnchorPane.topAnchor="0.0">
                      <font>
                         <Font name="System Bold" size="12.0" />
