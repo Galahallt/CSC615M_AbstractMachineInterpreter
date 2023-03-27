@@ -16,16 +16,14 @@ import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.InlineCssTextField;
 import org.fxmisc.richtext.LineNumberFactory;
 
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
-public class Controller implements Initializable {
+public class Controller implements Initializable  {
     // -------------------- Index for Reading Input -------------------- //
     int curChar = 0;
     // -------------------- Flag -------------------- //
@@ -38,8 +36,9 @@ public class Controller implements Initializable {
     int curCharHL = 1;
     // -------------------- Track current rule -------------------- //
 
-    // track current character in the input being read
+    // track current character as input/output
     String curInput;
+    String curOutput;
     // track the initial, current, and previous state of the machine
     String curState;
     String prevState;
@@ -127,7 +126,11 @@ public class Controller implements Initializable {
         tfOutput.setText("...");
 
         // ~~~~~~~~~~~~~~~~~ EventHandler Initialization ~~~~~~~~~~~~~~~~~ //
-        tblRules.setOnMouseClicked(null);
+        EventHandler<MouseEvent> handler = MouseEvent::consume;
+
+        // block events
+        tblRules.addEventFilter(MouseEvent.ANY, handler);
+        tblStepLogs.addEventFilter(MouseEvent.ANY, handler);
     }
 
 
@@ -153,6 +156,7 @@ public class Controller implements Initializable {
 
         // reset initial state and input
         curInput = null;
+        curOutput = null;
         curStates.clear();
         nextStates.clear();
 
@@ -246,8 +250,10 @@ public class Controller implements Initializable {
         {
             // initialize memory
             for (String name : treeListener.getMemoryList()) {
-                initMemoryList.add(new Memory(name, new ArrayList<String>()));
-                taMemory.setText(taMemory.getText() + name + ": []\n");
+                if (!name.contains("T")) {
+                    initMemoryList.add(new Memory(name, new ArrayList<String>()));
+                    taMemory.setText(taMemory.getText() + name + ": []\n");
+                }
             }
 
             memoryList.addAll(initMemoryList);
@@ -316,20 +322,23 @@ public class Controller implements Initializable {
             }
 
             // update current character being read
-            if (curCommand.startsWith("SCAN")) {
+            if (curCommand.startsWith("SCAN") || curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) {
                 if (curChar <= tfInput.getText().length())  {
                     updateIndex(curCommand);
                     curInput = String.valueOf(tfInput.getText().charAt(curChar));
                 }
             }
 
-
-            // check the next states that will be used by the machine
+            // check the next states based on the current state of the machine
             for (Rule rule: tblRules.getItems()) {
                 if (curStates.contains(rule.getState()) && rule.getInput().equals(curInput)
-                        && curCommand.startsWith("SCAN")) {
+                        && (curCommand.startsWith("SCAN") || curCommand.startsWith("RIGHT")
+                        || curCommand.startsWith("LEFT"))) {
                     nextStates.add(rule.getNextState());
                     nextCommand = getNextCommand();
+
+                    if (rule.getOutput() != null)
+                        curOutput = rule.getOutput();
                 } else if (curStates.contains(rule.getState()) &&
                         (curCommand.startsWith("WRITE") || curCommand.startsWith("READ"))) {
                     nextStates.add(rule.getNextState());
@@ -338,56 +347,38 @@ public class Controller implements Initializable {
                 }
             }
 
+            // if the current command is a scan
             if (curCommand.startsWith("SCAN")) {
-                if (prevCommand.contains("READ") || prevCommand.contains("WRITE")) {
-                    prevCommand = curCommand;
-                    System.out.println("\nSTransition " + step + "\ncurStates: " + curStates + "\nnextStates: "
-                            + nextStates + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: "
-                            + curCommand + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar);
-                    updateHighlighter();
-                } else {
-                    System.out.println("\nSTransition " + step + "\ncurStates: " + curStates + "\nnextStates: "
-                            + nextStates + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: "
-                            + curCommand + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar);
-                    updateHighlighter();
-                    prevCommand = curCommand;
-                }
+                scan();
+            }
+            // if the current commmand is write/read
+            else if (curCommand.startsWith("WRITE") || curCommand.startsWith("READ")) {
+                String[] parseCommand = curCommand.split("\\(");
 
-            } else if (curCommand.startsWith("WRITE") || curCommand.startsWith("READ")) {
-                String mName = curCommand.substring(curCommand.length() - 3, curCommand.length() - 1);
+                String mName = parseCommand[1].replace(")", "");
 
-
-                for (Memory memory : memoryList) {
-                    if (memory.getName().equals(mName) && curCommand.startsWith("WRITE")) {
-                        memory.write(curInput);
-                    } else if (memory.getName().equals(mName) && curCommand.startsWith("READ")
-                            && mName.startsWith("S")) {
-                        memory.stackRead();
-                    } else if (memory.getName().equals(mName) && curCommand.startsWith("READ")
-                            && mName.startsWith("Q")) {
-                        memory.queueRead();
-                    }
-                }
+                // execute machine function based on current command
+                if (curCommand.startsWith("WRITE"))
+                    write(mName);
+                 else
+                    read(mName);
 
                 // update the memory text area
                 updateTAMemory();
 
-                if (curCommand.contains("READ") || curCommand.contains("WRITE")) {
-                    prevCommand = curCommand;
+                System.out.println("\nMTransition " + step + "\ncurStates: " + curStates + "\nnextStates: " + nextStates
+                        + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: " + curCommand
+                        + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar + "\nmName: " + mName);
 
-                    System.out.println("\nMTransition " + step + "\ncurStates: " + curStates + "\nnextStates: " + nextStates
-                            + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: " + curCommand
-                            + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar + "\nmName: " + mName);
-                    // update highlighter
-                    updateHighlighter();
-                } else {
-                    System.out.println("\nMTransition " + step + "\ncurStates: " + curStates + "\nnextStates: " + nextStates
-                            + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: " + curCommand
-                            + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar + "\nmName: " + mName);
-                    // update highlighter
-                    updateHighlighter();
-                    prevCommand = curCommand;
-                }
+                // update previous command
+                prevCommand = curCommand;
+
+                // update highlighter
+                updateHighlighter();
+            }
+            // if the current commmand is right/left
+            else if ((curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) && curOutput != null) {
+                updateTape();
             }
 
             // refresh table list to update highlighted row
@@ -414,10 +405,68 @@ public class Controller implements Initializable {
     }
 
     // -------------------- Machine Command -------------------- //
+    public void updateTape() {
+        String input = tfInput.getText();
+        String updatedTape = input.substring(0, curChar) + curOutput + input.substring(curChar + 1);
+        tfInput.setText(updatedTape);
+
+        System.out.println("\nMTransition " + step + "\ncurStates: " + curStates + "\nnextStates: " + nextStates
+                + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: " + curCommand
+                + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar + "\nupdatedTape: " + updatedTape);
+
+
+        // move highlighter to current character being read
+        updateHighlighter();
+
+        // update previous command
+        prevCommand = curCommand;
+
+        // reset current output since not all states has output
+        curOutput = null;
+    }
+    public void write(String mName) {
+        for (Memory memory : memoryList) {
+            if (memory.getName().equals(mName) && curCommand.startsWith("WRITE")) {
+                memory.write(curInput);
+            }
+        }
+    }
+
+    public void read(String mName) {
+        for (Memory memory : memoryList) {
+            if (memory.getName().equals(mName) && curCommand.startsWith("READ")
+                    && mName.startsWith("S")) {
+                memory.stackRead();
+            } else if (memory.getName().equals(mName) && curCommand.startsWith("READ")
+                    && mName.startsWith("Q")) {
+                memory.queueRead();
+            }
+        }
+    }
+
+    public void scan() {
+        // if prevCommand wrote/read onto/from the memory, update prevCommand before moving the highlighter
+        if (prevCommand.contains("READ") || prevCommand.contains("WRITE")) {
+            prevCommand = curCommand;
+            System.out.println("\nSTransition " + step + "\ncurStates: " + curStates + "\nnextStates: "
+                    + nextStates + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: "
+                    + curCommand + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar);
+            updateHighlighter();
+        }
+        // if prevCommand did not write/read onto/from the memory, update prevCommand after moving the highlighter
+        else {
+            updateHighlighter();
+            prevCommand = curCommand;
+            System.out.println("\nSTransition " + step + "\ncurStates: " + curStates + "\nnextStates: "
+                    + nextStates + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: "
+                    + curCommand + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar);
+        }
+    }
+
     public void updateIndex(String command) {
-        if (command.equals("SCAN") || command.equals("SCAN RIGHT")) {
+        if (command.equals("SCAN") || command.contains("RIGHT")) {
             curChar++;
-        } else if (command.equals("SCAN LEFT")) {
+        } else if (command.contains("LEFT")) {
             curChar--;
         }
     }
@@ -468,11 +517,11 @@ public class Controller implements Initializable {
 
         // clear previous highlight
         tfInput.clearStyle(prevCharHL, curCharHL);
-        if (curCommand.equals("SCAN") || curCommand.equals("SCAN RIGHT") || curCommand.equals("RIGHT")) {
+        if (curCommand.equals("SCAN") || curCommand.contains("RIGHT")) {
             // move highlight tracker to the right
             prevCharHL+=1;
             curCharHL+=1;
-        } else if (curCommand.equals("SCAN LEFT") || curCommand.equals("LEFT")) {
+        } else if (curCommand.contains("LEFT")) {
             // move highlight tracker to the left
             prevCharHL-=1;
             curCharHL-=1;
