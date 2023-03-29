@@ -15,9 +15,8 @@ import java.util.List;
 public class MainParser {
     public static void main(String[] args)
     {
-        String myName = "domanokz";
-        String newName = myName.substring(0,4)+'x'+myName.substring(5);
-        System.out.println(newName);
+        String myName = "#0011#";
+        System.out.println(myName.length());
 //        try {
 //            CharStream cs = CharStreams.fromFileName("src/main/resources/MP_Grammar.txt");
 ////            InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));

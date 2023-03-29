@@ -20,6 +20,7 @@ import javafx.scene.input.MouseEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
@@ -39,8 +40,9 @@ public class Controller implements Initializable  {
     // track current character as input/output
     String curInput;
     String curOutput;
-    // track the initial, current, and previous state of the machine
+    // track the initial, current, and next state of the machine
     String curState;
+    String nextState;
     String prevState;
     String initState;
     // track the initial, current, and previous command of the machine
@@ -48,9 +50,8 @@ public class Controller implements Initializable  {
     String curCommand;
     String nextCommand;
     String initCommand;
+
     // -------------------- List -------------------- //
-   List<String> nextStates = new ArrayList<>();
-    List<String> curStates = new ArrayList<>();
     List<Memory> memoryList = new ArrayList<>();
     List<Memory> initMemoryList = new ArrayList<>();
     List<StepLogs> stepLogsList = new ArrayList<>();
@@ -154,11 +155,14 @@ public class Controller implements Initializable  {
         prevCharHL = 0;
         curCharHL = 1;
 
-        // reset initial state and input
-        curInput = null;
+        // initialize input and output
+        curInput = "";
         curOutput = null;
-        curStates.clear();
-        nextStates.clear();
+
+        // initialize state
+        curState = "";
+        nextState = "";
+        prevState = "";
 
         // clear contents of table view
         tblRules.getItems().clear();
@@ -211,7 +215,7 @@ public class Controller implements Initializable  {
                 super.updateItem(rule, empty) ;
                 if (rule == null) {
                     setStyle("");
-                } else if (curStates.contains(rule.getState()) && rule.getInput().equals(curInput)) {
+                } else if (prevState.equals(rule.getState()) && rule.getInput().equals(curInput)) {
                     tblStepLogs.getItems().add(new StepLogs(step, rule.getInput(), rule.getOutput(),
                             rule.getState(), rule.getNextState(), rule.getCommand()));
 
@@ -228,23 +232,31 @@ public class Controller implements Initializable  {
             }
         });
 
+        // initialize initial, current, and previous state
+        initState = treeListener.getRulesList().get(0).getState();
+        nextState = "";
+        curState = initState;
+        prevState = initState;
+
+        // initialize initial, current, and previous command
+        initCommand = treeListener.getRulesList().get(0).getCommand();
+        nextCommand = initCommand;
+        curCommand = initCommand;
+        prevCommand = initCommand;
+
+        // initialize input and output
+        curInput = "";
+        curOutput = null;
+
         // initialize index of current character read
         curChar = 0;
-
-        // initialize initial, current, and previous state
-        curStates.clear();
-        nextStates.clear();
-        initState = treeListener.getRulesList().get(0).getState();
-        nextStates.add(initState);
 
         // initialize highlight tracker
         prevCharHL = 0;
         curCharHL = 1;
 
-        // initialize initial, current, and previous command
-        initCommand = treeListener.getRulesList().get(0).getCommand();
-        nextCommand = initCommand;
-        prevCommand = initCommand;
+        // highlight left-most #
+        tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
 
         if (treeListener.getMemoryList().size() > 0)
         {
@@ -297,23 +309,6 @@ public class Controller implements Initializable  {
     public void handleStepClick() throws ExecutionException, InterruptedException {
         System.out.println("Step");
         if (!accept && !reject) {
-            // increment step number
-            step+=1;
-
-            // clear contents of curStates to be updated later
-            curStates.clear();
-
-            // update current state to the next state
-            curStates.addAll(nextStates);
-            curCommand = nextCommand;
-
-            // clear contents of nextStates to be updated later
-            nextStates.clear();
-
-            // set the input text to the text in the input string field
-            if (tfInput.getText().equals("#...#") && !tfInputString.getText().equals(""))
-                tfInput.setText("#" + tfInputString.getText() + "#");
-
             // disable reset, play, and edit buttons
             if (!btnPlay.isDisabled() && !btnReset.isDisabled() && !btnEdit.isDisabled()){
                 btnPlay.setDisable(true);
@@ -321,38 +316,54 @@ public class Controller implements Initializable  {
                 btnEdit.setDisable(true);
             }
 
-            // update current character being read
-            if (curCommand.startsWith("SCAN") || curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) {
-                if (curChar <= tfInput.getText().length())  {
-                    updateIndex(curCommand);
-                    curInput = String.valueOf(tfInput.getText().charAt(curChar));
-                }
-            }
+            // set the input text to the text in the input string field
+            if (tfInput.getText().equals("#...#") && !tfInputString.getText().equals(""))
+                tfInput.setText("#" + tfInputString.getText() + "#");
 
-            // check the next states based on the current state of the machine
+            // increment step number
+            step+=1;
+
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Machine Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+            // get the rule for the current state then get the current command
             for (Rule rule: tblRules.getItems()) {
-                if (curStates.contains(rule.getState()) && rule.getInput().equals(curInput)
-                        && (curCommand.startsWith("SCAN") || curCommand.startsWith("RIGHT")
-                        || curCommand.startsWith("LEFT"))) {
-                    nextStates.add(rule.getNextState());
-                    nextCommand = getNextCommand();
-
-                    if (rule.getOutput() != null)
-                        curOutput = rule.getOutput();
-                } else if (curStates.contains(rule.getState()) &&
-                        (curCommand.startsWith("WRITE") || curCommand.startsWith("READ"))) {
-                    nextStates.add(rule.getNextState());
-                    nextCommand = getNextCommand();
-                    curInput = rule.getInput();
+                if (rule.getState().equals(curState)) {
+                    curCommand = rule.getCommand();
                 }
             }
 
-            // if the current command is a scan
-            if (curCommand.startsWith("SCAN")) {
-                scan();
-            }
-            // if the current commmand is write/read
-            else if (curCommand.startsWith("WRITE") || curCommand.startsWith("READ")) {
+            if (curCommand.startsWith("SCAN") || curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) {
+                // update highlighter trackers
+                updateHLTrackers(curCommand);
+
+                // get the input that will be read
+                curInput = String.valueOf(tfInput.getText().charAt(curChar));
+
+                // get the rule for the current input and state then get the next state
+                for (Rule rule: tblRules.getItems()) {
+                    if (rule.getState().equals(curState) && rule.getInput().equals(curInput)) {
+                        nextState = rule.getNextState();
+                        curOutput = rule.getOutput();
+                    }
+                }
+
+                if (!Objects.equals(curOutput, null)) {
+                    updateTape();
+                } else {
+                    // debug
+                    System.out.println("\nSTransition " + step + "\ncurState: " + curState + "\nnextState: " + nextState
+                            + "\ncurInput: " + curInput + "\ncurOutput: " + Objects.equals(curOutput, null) + "\ncurCommand: " + curCommand
+                            + "\ncurChar: " + curChar);
+                }
+
+            } else if (curCommand.startsWith("WRITE") || curCommand.startsWith("READ")) {
+                // get the rule for the current input and state then get the next state
+                for (Rule rule: tblRules.getItems()) {
+                    if (rule.getState().equals(curState)) {
+                        curInput = rule.getInput();
+                        nextState = rule.getNextState();
+                    }
+                }
+
                 String[] parseCommand = curCommand.split("\\(");
 
                 String mName = parseCommand[1].replace(")", "");
@@ -366,22 +377,20 @@ public class Controller implements Initializable  {
                 // update the memory text area
                 updateTAMemory();
 
-                System.out.println("\nMTransition " + step + "\ncurStates: " + curStates + "\nnextStates: " + nextStates
-                        + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: " + curCommand
-                        + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar + "\nmName: " + mName);
+                System.out.println("\nMTransition " + step + "\ncurState: " + curState + "\nnextStates: " + nextState
+                        + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand
+                        +  "\ncurCommand: " + curCommand + "\ncurChar: " + curChar + "\nmName: " + mName);
 
-                // update previous command
-                prevCommand = curCommand;
 
-                // update highlighter
-                updateHighlighter();
-            }
-            // if the current commmand is right/left
-            else if ((curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) && curOutput != null) {
-                updateTape();
             }
 
-            // refresh table list to update highlighted row
+            // update the state variables of the machine
+            updateState();
+
+            // update highlighter GUI
+            updateGUIHighlighter();
+
+            // refresh table
             tblRules.refresh();
         } else {
             resetMachine();
@@ -410,16 +419,9 @@ public class Controller implements Initializable  {
         String updatedTape = input.substring(0, curChar) + curOutput + input.substring(curChar + 1);
         tfInput.setText(updatedTape);
 
-        System.out.println("\nMTransition " + step + "\ncurStates: " + curStates + "\nnextStates: " + nextStates
+        System.out.println("\nTTransition " + step + "\ncurStates: " + curState + "\nnextStates: " + nextState
                 + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: " + curCommand
                 + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar + "\nupdatedTape: " + updatedTape);
-
-
-        // move highlighter to current character being read
-        updateHighlighter();
-
-        // update previous command
-        prevCommand = curCommand;
 
         // reset current output since not all states has output
         curOutput = null;
@@ -444,46 +446,14 @@ public class Controller implements Initializable  {
         }
     }
 
-    public void scan() {
-        // if prevCommand wrote/read onto/from the memory, update prevCommand before moving the highlighter
-        if (prevCommand.contains("READ") || prevCommand.contains("WRITE")) {
-            prevCommand = curCommand;
-            System.out.println("\nSTransition " + step + "\ncurStates: " + curStates + "\nnextStates: "
-                    + nextStates + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: "
-                    + curCommand + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar);
-            updateHighlighter();
-        }
-        // if prevCommand did not write/read onto/from the memory, update prevCommand after moving the highlighter
-        else {
-            updateHighlighter();
-            prevCommand = curCommand;
-            System.out.println("\nSTransition " + step + "\ncurStates: " + curStates + "\nnextStates: "
-                    + nextStates + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: "
-                    + curCommand + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar);
-        }
-    }
-
-    public void updateIndex(String command) {
-        if (command.equals("SCAN") || command.contains("RIGHT")) {
-            curChar++;
-        } else if (command.contains("LEFT")) {
-            curChar--;
-        }
-    }
-
-    public String getNextCommand() {
-        String command = null;
-        for (Rule rule : tblRules.getItems()) {
-            if (nextStates.contains(rule.getState())) {
-                command = rule.getCommand();
-            }
-        }
-
-        return command;
-    }
-
-
     // -------------------- Update GUI -------------------- //
+    public void updateState () {
+        // save curState to prevState for table highlights
+        prevState = curState;
+        // update current state to the next state
+        curState = nextState;
+    }
+
     public void updateTAMemory () {
         taMemory.clear();
         for (Memory memory: memoryList) {
@@ -491,46 +461,34 @@ public class Controller implements Initializable  {
         }
     }
 
-    public void updateHighlighter() {
-        // move highlighter by one
-        if (curChar <= tfInputString.getText().length() + 1) {
-            checkState();
-        }
-        // if it reaches the end of input string
-        else if (curChar == tfInputString.getText().length() + 2) {
-            checkState();
-        }
-        // if step is pressed after the highlighter reaches the end, reset
-        else {
-            tfInput.clearStyle(prevCharHL - 1, curCharHL - 2);
-            resetMachine();
+    public void updateHLTrackers(String command) {
+        tfInput.clearStyle(prevCharHL, curCharHL);
+
+        if ((command.equals("SCAN") || command.contains("RIGHT")) && curCharHL < tfInput.getText().length()) {
+            // move highlight tracker to the right
+            prevCharHL+=1;
+            curCharHL+=1;
+            curChar++;
+        } else if (command.contains("LEFT") && prevCharHL >= 0) {
+            // move highlight tracker to the left
+            prevCharHL-=1;
+            curCharHL-=1;
+            curChar--;
         }
     }
 
-    public void checkState() {
+    public void updateGUIHighlighter() {
         /**
          * CSS Colors
          * accept: #28A745
          * reading: #FFC107
          * reject: #DC3545
          */
-
-        // clear previous highlight
-        tfInput.clearStyle(prevCharHL, curCharHL);
-        if (curCommand.equals("SCAN") || curCommand.contains("RIGHT")) {
-            // move highlight tracker to the right
-            prevCharHL+=1;
-            curCharHL+=1;
-        } else if (curCommand.contains("LEFT")) {
-            // move highlight tracker to the left
-            prevCharHL-=1;
-            curCharHL-=1;
-        }
-
-        if (nextStates.contains("accept")) {
+        // check if the next state is accept, reject, or neither
+        if (nextState.equals("accept")) {
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #28A745;");
             accept = true;
-        } else if (nextStates.contains("reject") || nextStates.size() == 0) {
+        } else if (nextState.contains("reject") || nextState.equals("")) {
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #DC3545;");
             reject = true;
         } else {
@@ -543,15 +501,20 @@ public class Controller implements Initializable  {
         // initialize index of current character read
         curChar = 0;
 
-        // reset highlighter tracker
+        // initialize highlight tracker
         prevCharHL = 0;
         curCharHL = 1;
 
-        // reset initial state and input
-        curInput = null;
-        curStates.clear();
-        nextStates.clear();
-        nextStates.add(initState);
+        // highlight left-most #
+        tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
+
+        // initialize input and output
+        curInput = "";
+        curOutput = null;
+
+        // initalize current state and next state
+        nextState = "";
+        curState = initState;
 
         // reset memory
         memoryList.clear();
@@ -562,6 +525,7 @@ public class Controller implements Initializable  {
         // initialize prev and next command
         nextCommand = initCommand;
         prevCommand = initCommand;
+        curCommand = initCommand;
 
         // clear logs
         tblStepLogs.getItems().clear();
