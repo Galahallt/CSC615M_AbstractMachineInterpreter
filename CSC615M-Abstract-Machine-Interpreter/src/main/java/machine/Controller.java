@@ -364,26 +364,27 @@ public class Controller implements Initializable  {
                 // update highlighter trackers
                 updateHLTrackers(curCommand);
 
-                // get the input that will be read
-                curInput = String.valueOf(tfInput.getText().charAt(curChar));
+                if (curChar >= 0) {
+                    // get the input that will be read
+                    curInput = String.valueOf(tfInput.getText().charAt(curChar));
 
-                // get the rule for the current input and state then get the next state
-                for (Rule rule: tblRules.getItems()) {
-                    if (rule.getState().equals(curState) && rule.getInput().equals(curInput)) {
-                        nextState = rule.getNextState();
-                        curOutput = rule.getOutput();
+                    // get the rule for the current input and state then get the next state
+                    for (Rule rule: tblRules.getItems()) {
+                        if (rule.getState().equals(curState) && rule.getInput().equals(curInput)) {
+                            nextState = rule.getNextState();
+                            curOutput = rule.getOutput();
+                        }
+                    }
+
+                    if ((curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) && !Objects.equals(curOutput, null)) {
+                        updateTape();
+                    } else {
+                        // debug
+                        System.out.println("\nSTransition " + step + "\ncurState: " + curState + "\nnextState: " + nextState
+                                + "\ncurInput: " + curInput + "\ncurOutput: " + Objects.equals(curOutput, null) + "\ncurCommand: " + curCommand
+                                + "\ncurChar: " + curChar);
                     }
                 }
-
-                if ((curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) && !Objects.equals(curOutput, null)) {
-                    updateTape();
-                } else {
-                    // debug
-                    System.out.println("\nSTransition " + step + "\ncurState: " + curState + "\nnextState: " + nextState
-                            + "\ncurInput: " + curInput + "\ncurOutput: " + Objects.equals(curOutput, null) + "\ncurCommand: " + curCommand
-                            + "\ncurChar: " + curChar);
-                }
-
             } else if (curCommand.startsWith("WRITE") || curCommand.startsWith("READ")) {
                 // get the rule for the current input and state then get the next state
                 for (Rule rule: tblRules.getItems()) {
@@ -512,7 +513,7 @@ public class Controller implements Initializable  {
             prevCharHL+=1;
             curCharHL+=1;
             curChar++;
-        } else if (command.contains("LEFT") && prevCharHL >= 0) {
+        } else if (command.contains("LEFT") && prevCharHL > 0) {
             // move highlight tracker to the left
             prevCharHL-=1;
             curCharHL-=1;
