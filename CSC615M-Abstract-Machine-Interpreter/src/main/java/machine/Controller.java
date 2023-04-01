@@ -1,6 +1,7 @@
 package machine;
 
 import antlr.AMGrammarBaseListener;
+import antlr.SyntaxError;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Controller implements Initializable  {
     // -------------------- Index for Reading Input -------------------- //
-    int curChar = 0;
+    int curChar;
     // -------------------- Flag -------------------- //
     boolean reject = false;
     boolean accept = false;
@@ -63,6 +64,8 @@ public class Controller implements Initializable  {
     // -------------------- InlineCSSTextField -------------------- //
     public InlineCssTextField tfInput;
     public InlineCssTextField tfOutput;
+    // -------------------- Label -------------------- //
+    public Label lblError;
 
     // -------------------- Text Field -------------------- //
     public TextField tfInputString;
@@ -97,6 +100,7 @@ public class Controller implements Initializable  {
     public Button btnPlay;
     public Button btnStep;
     public Button btnReset;
+    public Button btnSet;
 
     // -------------------- Initialize Elements On Load -------------------- //
     @Override
@@ -124,7 +128,6 @@ public class Controller implements Initializable  {
         tfInput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;");
         tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;");
         tfInput.setText("#...#");
-        tfOutput.setText("...");
 
         // ~~~~~~~~~~~~~~~~~ EventHandler Initialization ~~~~~~~~~~~~~~~~~ //
         EventHandler<MouseEvent> handler = MouseEvent::consume;
@@ -132,6 +135,9 @@ public class Controller implements Initializable  {
         // block events
         tblRules.addEventFilter(MouseEvent.ANY, handler);
         tblStepLogs.addEventFilter(MouseEvent.ANY, handler);
+        tfInput.addEventFilter(MouseEvent.ANY, handler);
+        tfOutput.addEventFilter(MouseEvent.ANY, handler);
+
     }
 
 
@@ -145,7 +151,6 @@ public class Controller implements Initializable  {
 
         // reset TextFields
         tfInput.setText("#...#");
-        tfOutput.setText("...");
         tfInputString.clear();
 
         // initialize index of current character read
@@ -196,97 +201,132 @@ public class Controller implements Initializable  {
         // parse content
         Parser parser = new Parser();
 
-        AMGrammarBaseListener treeListener = parser.parseInput(caMachineDef.getText().strip());
+        List<SyntaxError> errors = parser.getSyntaxErrors(caMachineDef.getText().strip());
 
-        // initialize rules
-        tblRules.setItems(getRuleList(treeListener.getRulesList()));
+        if (!(errors.size() > 0)) {
+            AMGrammarBaseListener treeListener = parser.parseInput(caMachineDef.getText().strip());
 
-        // set row color while reading input string
-        /**
-         * CSS Colors
-         * accept: #28A745
-         * reading: #FFC107
-         * reject: #DC3545
-         */
+            // initialize rules
+            tblRules.setItems(getRuleList(treeListener.getRulesList()));
 
-        tblRules.setRowFactory(tv -> new TableRow<Rule>() {
-            @Override
-            public void updateItem(Rule rule, boolean empty) {
-                super.updateItem(rule, empty) ;
-                if (rule == null) {
-                    setStyle("");
-                } else if (prevState.equals(rule.getState()) && rule.getInput().equals(curInput)) {
-                    tblStepLogs.getItems().add(new StepLogs(step, rule.getInput(), rule.getOutput(),
-                            rule.getState(), rule.getNextState(), rule.getCommand()));
+            // set row color while reading input string
+            /**
+             * CSS Colors
+             * accept: #28A745
+             * reading: #FFC107
+             * reject: #DC3545
+             */
 
-                    if (rule.getNextState().equals("accept")) {
-                        setStyle("-fx-background-color: #28A745;");
-                    } else if (rule.getNextState().equals("reject")) {
-                        setStyle("-fx-background-color: #DC3545;");
+            tblRules.setRowFactory(tv -> new TableRow<Rule>() {
+                @Override
+                public void updateItem(Rule rule, boolean empty) {
+                    super.updateItem(rule, empty) ;
+                    if (rule == null) {
+                        setStyle("");
+                    } else if (prevState.equals(rule.getState()) && rule.getInput().equals(curInput)) {
+                        tblStepLogs.getItems().add(new StepLogs(step, rule.getInput(), rule.getOutput(),
+                                rule.getState(), rule.getNextState(), rule.getCommand()));
+
+                        if (rule.getNextState().equals("accept")) {
+                            setStyle("-fx-background-color: #28A745;");
+                        } else if (rule.getNextState().equals("reject")) {
+                            setStyle("-fx-background-color: #DC3545;");
+                        } else {
+                            setStyle("-fx-background-color: #FFC107;");
+                        }
                     } else {
-                        setStyle("-fx-background-color: #FFC107;");
+                        setStyle("");
                     }
-                } else {
-                    setStyle("");
                 }
-            }
-        });
+            });
 
-        // initialize initial, current, and previous state
-        initState = treeListener.getRulesList().get(0).getState();
-        nextState = "";
-        curState = initState;
-        prevState = initState;
+            // initialize initial, current, and previous state
+            initState = treeListener.getRulesList().get(0).getState();
+            nextState = "";
+            curState = initState;
+            prevState = initState;
 
-        // initialize initial, current, and previous command
-        initCommand = treeListener.getRulesList().get(0).getCommand();
-        nextCommand = initCommand;
-        curCommand = initCommand;
-        prevCommand = initCommand;
+            // initialize initial, current, and previous command
+            initCommand = treeListener.getRulesList().get(0).getCommand();
+            nextCommand = initCommand;
+            curCommand = initCommand;
+            prevCommand = initCommand;
 
-        // initialize input and output
-        curInput = "";
-        curOutput = null;
+            // initialize input and output
+            curInput = "";
+            curOutput = null;
 
-        // initialize index of current character read
-        curChar = 0;
+            // initialize index of current character read
+            curChar = 0;
 
-        // initialize highlight tracker
-        prevCharHL = 0;
-        curCharHL = 1;
+            // initialize highlight tracker
+            prevCharHL = 0;
+            curCharHL = 1;
 
-        // highlight left-most #
-        tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
-
-        if (treeListener.getMemoryList().size() > 0)
-        {
-            // initialize memory
-            for (String name : treeListener.getMemoryList()) {
-                if (!name.contains("T")) {
-                    initMemoryList.add(new Memory(name, new ArrayList<String>()));
-                    taMemory.setText(taMemory.getText() + name + ": []\n");
+            if (treeListener.getMemoryList().size() > 0)
+            {
+                // initialize memory
+                for (String name : treeListener.getMemoryList()) {
+                    if (!name.contains("T")) {
+                        initMemoryList.add(new Memory(name, new ArrayList<String>()));
+                        taMemory.setText(taMemory.getText() + name + ": []\n");
+                    }
                 }
+
+                memoryList.addAll(initMemoryList);
             }
 
-            memoryList.addAll(initMemoryList);
+            System.out.println(curState);
+
+            // set buttons disable true
+            vspMachineDef.setDisable(true);
+            btnSave.setDisable(true);
+
+            if (!tfInput.getText().equals("#...#")) {
+                System.out.println(tfInput.getText());
+                btnPlay.setDisable(false);
+                btnStep.setDisable(false);
+                btnReset.setDisable(false);
+            }
+
+            // set buttons disable false
+            btnEdit.setDisable(false);
+            lblError.setVisible(false);
+            lblError.setText("");
+        } else {
+            SyntaxError err = errors.get(0);
+            lblError.setVisible(true);
+            lblError.setText("line " + err.getLine() + ":" + err.getCharPositionInLine() + " " + err.getMessage());
         }
 
-        System.out.println(curState);
 
-        // set buttons disable true
-        vspMachineDef.setDisable(true);
-        btnSave.setDisable(true);
 
-        // set control buttons disable false
-        btnPlay.setDisable(false);
-        btnStep.setDisable(false);
-        btnReset.setDisable(false);
-
-        // set buttons disable false
-        btnEdit.setDisable(false);
     }
 
     // Controls
+    public void handleSetClick() {
+        // set the input text to the text in the input string field
+        if (!tfInputString.getText().trim().equals("")) {
+            tfInput.setText("#" + tfInputString.getText().trim() + "#");
+
+            // highlight left-most #
+            tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
+
+            if (!tblRules.getItems().isEmpty()) {
+                // enable user controls
+                btnPlay.setDisable(false);
+                btnStep.setDisable(false);
+                btnReset.setDisable(false);
+            }
+        } else {
+            tfInput.setText("#...#");
+
+            btnPlay.setDisable(true);
+            btnStep.setDisable(true);
+            btnReset.setDisable(true);
+        }
+    }
+
     public void handlePlayClick() {
         System.out.println("Play");
 
@@ -297,28 +337,17 @@ public class Controller implements Initializable  {
 
     public void handleResetClick() {
         System.out.println("Reset");
-
-        memoryList.get(0).queueRead();
-
-
-        tfInput.deselect();
-
-        updateTAMemory();
+        resetMachine();
     }
 
-    public void handleStepClick() throws ExecutionException, InterruptedException {
+    public void handleStepClick() {
         System.out.println("Step");
         if (!accept && !reject) {
-            // disable reset, play, and edit buttons
-            if (!btnPlay.isDisabled() && !btnReset.isDisabled() && !btnEdit.isDisabled()){
-                btnPlay.setDisable(true);
-                btnReset.setDisable(true);
-                btnEdit.setDisable(true);
-            }
-
-            // set the input text to the text in the input string field
-            if (tfInput.getText().equals("#...#") && !tfInputString.getText().equals(""))
-                tfInput.setText("#" + tfInputString.getText() + "#");
+            // disable play buttons
+            btnPlay.setDisable(true);
+            btnReset.setDisable(true);
+            btnEdit.setDisable(true);
+            btnSet.setDisable(true);
 
             // increment step number
             step+=1;
@@ -346,7 +375,7 @@ public class Controller implements Initializable  {
                     }
                 }
 
-                if (!Objects.equals(curOutput, null)) {
+                if ((curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) && !Objects.equals(curOutput, null)) {
                     updateTape();
                 } else {
                     // debug
@@ -382,6 +411,21 @@ public class Controller implements Initializable  {
                         +  "\ncurCommand: " + curCommand + "\ncurChar: " + curChar + "\nmName: " + mName);
 
 
+            } else if (curCommand.startsWith("PRINT")) {
+                // get the rule for the current input and state then get the next state
+                for (Rule rule: tblRules.getItems()) {
+                    if (rule.getState().equals(curState)) {
+                        curInput = rule.getInput();
+                        nextState = rule.getNextState();
+                    }
+                }
+
+                tfOutput.setText(tfOutput.getText() + curInput);
+
+                System.out.println("\nPTransition " + step + "\ncurState: " + curState + "\nnextStates: " + nextState
+                        + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand
+                        +  "\ncurCommand: " + curCommand + "\ncurChar: " + curChar);
+
             }
 
             // update the state variables of the machine
@@ -390,12 +434,11 @@ public class Controller implements Initializable  {
             // update highlighter GUI
             updateGUIHighlighter();
 
+            // reset nextState
+            nextState = "";
+
             // refresh table
             tblRules.refresh();
-        } else {
-            resetMachine();
-            tblRules.refresh();
-            step = 0;
         }
     }
 
@@ -487,10 +530,26 @@ public class Controller implements Initializable  {
         // check if the next state is accept, reject, or neither
         if (nextState.equals("accept")) {
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #28A745;");
+            tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;-fx-background-color: #28A745");
+
+            // if the output field contains default string
+            if (tfOutput.getText().trim().isEmpty())
+                tfOutput.setText("ACCEPT");
+
             accept = true;
+            btnReset.setDisable(false);
+            btnStep.setDisable(true);
         } else if (nextState.contains("reject") || nextState.equals("")) {
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #DC3545;");
+            tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;-fx-background-color: #DC3545");
+
+            // if the output field contains default string
+            if (tfOutput.getText().trim().isEmpty())
+                tfOutput.setText("REJECT");
+
             reject = true;
+            btnReset.setDisable(false);
+            btnStep.setDisable(true);
         } else {
             // update highlight tracker
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
@@ -498,6 +557,9 @@ public class Controller implements Initializable  {
     }
 
     public void resetMachine() {
+        // reset step counter
+        step = 0;
+
         // initialize index of current character read
         curChar = 0;
 
@@ -505,14 +567,15 @@ public class Controller implements Initializable  {
         prevCharHL = 0;
         curCharHL = 1;
 
-        // highlight left-most #
-        tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
+        tfOutput.setStyle("");
+        tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;");
+        tfOutput.setText("");
 
         // initialize input and output
         curInput = "";
         curOutput = null;
 
-        // initalize current state and next state
+        // initialize current state and next state
         nextState = "";
         curState = initState;
 
@@ -532,16 +595,20 @@ public class Controller implements Initializable  {
 
         // reset input
         tfInput.setText("#...#");
+        tfInputString.setText("");
 
         // reset flags
         accept = false;
         reject = false;
 
         // make play, reset, and edit buttons clickable again
-        if (btnPlay.isDisabled() && btnReset.isDisabled() && btnEdit.isDisabled()){
-            btnPlay.setDisable(false);
-            btnReset.setDisable(false);
-            btnEdit.setDisable(false);
-        }
+        btnPlay.setDisable(true);
+        btnStep.setDisable(true);
+
+        btnSet.setDisable(false);
+        btnEdit.setDisable(false);
+
+        // reset table
+        tblRules.refresh();
     }
 }

@@ -114,61 +114,72 @@
                         </ImageView>
                      </graphic>
                   </Button>
+                  <Label fx:id="lblError" alignment="CENTER" layoutX="2.0" layoutY="386.0" prefHeight="18.0" prefWidth="386.0" text="Label" textFill="#dc3545" visible="false">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
                </children>
             </AnchorPane>
-            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="402.0" prefWidth="433.0">
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="402.0" prefWidth="426.0">
                <children>
-                  <Label contentDisplay="RIGHT" layoutX="24.0" layoutY="53.0" prefHeight="16.0" prefWidth="382.0" text="Input String:" AnchorPane.bottomAnchor="321.79999999999995" AnchorPane.leftAnchor="26.0" AnchorPane.rightAnchor="25.200000000000045" AnchorPane.topAnchor="55.00000000000002">
-                     <graphic>
-                        <TextField fx:id="tfInputString" prefHeight="25.0" prefWidth="298.0" />
-                     </graphic>
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Label>
-                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="-1.0" layoutY="147.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="26.0" prefWidth="430.0" textAlignment="CENTER">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Label>
-                  <ScrollPane layoutX="-2.0" layoutY="174.0" prefHeight="227.0" prefWidth="434.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="1.1999999999999886" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="1.2000000000000455" AnchorPane.topAnchor="174.0">
-                     <content>
-                        <TextArea fx:id="taMemory" editable="false" prefHeight="226.0" prefWidth="418.0" wrapText="true">
+                  <AnchorPane minWidth="-Infinity" prefHeight="300.0" prefWidth="434.0">
+                     <children>
+                        <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="314.0" text="Input String:" AnchorPane.bottomAnchor="322.0" AnchorPane.leftAnchor="26.0" AnchorPane.rightAnchor="94.0" AnchorPane.topAnchor="55.0">
+                           <graphic>
+                              <TextField fx:id="tfInputString" prefHeight="25.0" prefWidth="235.0" />
+                           </graphic>
                            <font>
-                              <Font name="Courier New" size="14.0" />
-                           </font></TextArea>
-                     </content></ScrollPane>
-                  <Label alignment="CENTER" contentDisplay="CENTER" layoutY="146.0" prefHeight="28.0" prefWidth="434.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Memory" textAlignment="CENTER" AnchorPane.bottomAnchor="228.0" AnchorPane.leftAnchor="-0.7999999999999545" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="146.39999999999998">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </Label>
-                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="-2.0" prefHeight="28.0" prefWidth="434.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Controls" textAlignment="CENTER" AnchorPane.bottomAnchor="374.4" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="1.2000000000000455" AnchorPane.topAnchor="0.0">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </Label>
-                  <Button fx:id="btnPlay" disable="true" layoutX="158.0" layoutY="94.0" mnemonicParsing="false" onAction="#handlePlayClick" prefHeight="38.0" prefWidth="118.0" text="Play">
-                     <font>
-                        <Font name="System Bold" size="13.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="btnStep" disable="true" layoutX="289.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleStepClick" prefHeight="38.0" prefWidth="118.0" text="Step">
-                     <font>
-                        <Font name="System Bold" size="13.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="btnReset" disable="true" layoutX="26.0" layoutY="94.0" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="38.0" prefWidth="118.0" text="Reset">
-                     <font>
-                        <Font name="System Bold" size="13.0" />
-                     </font>
-                  </Button>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="434.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Controls" textAlignment="CENTER" AnchorPane.bottomAnchor="374.4" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="1.2000000000000455" AnchorPane.topAnchor="0.0">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </Label>
+                        <Button fx:id="btnPlay" disable="true" mnemonicParsing="false" onAction="#handlePlayClick" prefHeight="38.0" prefWidth="118.0" text="Play" AnchorPane.bottomAnchor="270.0" AnchorPane.leftAnchor="158.0" AnchorPane.rightAnchor="157.20000000000002" AnchorPane.topAnchor="94.0">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="btnStep" disable="true" mnemonicParsing="false" onAction="#handleStepClick" prefHeight="38.0" prefWidth="118.0" text="Step" AnchorPane.bottomAnchor="270.0" AnchorPane.rightAnchor="29.200000000000045" AnchorPane.topAnchor="94.0">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="btnReset" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="38.0" prefWidth="118.0" text="Reset" AnchorPane.bottomAnchor="270.0" AnchorPane.leftAnchor="26.0" AnchorPane.topAnchor="94.0">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="btnSet" layoutX="351.0" layoutY="54.0" mnemonicParsing="false" onAction="#handleSetClick" prefHeight="20.0" prefWidth="53.0" text="Set" AnchorPane.bottomAnchor="321.2" AnchorPane.leftAnchor="351.0" AnchorPane.rightAnchor="29.799999999999976" AnchorPane.topAnchor="53.999999999999986">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="434.0" style="-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color; -fx-background-insets: 0, 1, 2; -fx-border-radius: 5 5 0 0, 4 4 0 0, 3 3 0 0; -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em;" text="Memory" textAlignment="CENTER" AnchorPane.bottomAnchor="228.0" AnchorPane.leftAnchor="-8.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="146.39999999999998">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </Label>
+                        <ScrollPane prefHeight="227.0" prefWidth="434.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="1.1999999999999886" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="1.2000000000000455" AnchorPane.topAnchor="174.0">
+                           <content>
+                              <TextArea fx:id="taMemory" editable="false" prefHeight="226.0" prefWidth="418.0" wrapText="true">
+                                 <font>
+                                    <Font name="Courier New" size="14.0" />
+                                 </font>
+                              </TextArea>
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
                </children>
             </AnchorPane>
         </items>
