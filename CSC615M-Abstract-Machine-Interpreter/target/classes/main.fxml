@@ -12,16 +12,6 @@
    <children>
       <MenuBar layoutY="2.0" prefHeight="26.0" prefWidth="1366.0" AnchorPane.bottomAnchor="740.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
-            </items>
-          </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
@@ -169,15 +159,11 @@
                               <Insets />
                            </opaqueInsets>
                         </Label>
-                        <ScrollPane prefHeight="227.0" prefWidth="434.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="1.1999999999999886" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="1.2000000000000455" AnchorPane.topAnchor="174.0">
+                        <ScrollPane hbarPolicy="NEVER" layoutY="174.0" prefHeight="227.0" prefWidth="426.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="174.0">
                            <content>
-                              <TextArea fx:id="taMemory" editable="false" prefHeight="226.0" prefWidth="418.0" wrapText="true">
-                                 <font>
-                                    <Font name="Courier New" size="14.0" />
-                                 </font>
-                              </TextArea>
-                           </content>
-                        </ScrollPane>
+                              <GridPane fx:id="gpMemoryPane" prefHeight="34.0" prefWidth="410.0">
+                              </GridPane>
+                           </content></ScrollPane>
                      </children>
                   </AnchorPane>
                </children>
@@ -205,5 +191,10 @@
             <InlineCssTextField fx:id="tfOutput" alignment="CENTER" editable="false" prefHeight="70.0" prefWidth="1228.0" style="-fx-border-color: BLACK;" />
          </graphic>
       </Label>
+      <TextArea fx:id="taMemory" editable="false" layoutX="826.0" layoutY="199.0" prefHeight="226.0" prefWidth="418.0" wrapText="true">
+         <font>
+            <Font name="Courier New" size="14.0" />
+         </font>
+      </TextArea>
    </children>
 </AnchorPane>

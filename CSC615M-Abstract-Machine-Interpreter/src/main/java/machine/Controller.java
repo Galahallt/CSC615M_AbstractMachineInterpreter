@@ -2,23 +2,35 @@ package machine;
 
 import antlr.AMGrammarBaseListener;
 import antlr.SyntaxError;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.InlineCssTextField;
 import org.fxmisc.richtext.LineNumberFactory;
 
 import javafx.scene.input.MouseEvent;
+import org.w3c.dom.Text;
+
 import java.net.URL;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +43,8 @@ public class Controller implements Initializable  {
     // -------------------- Flag -------------------- //
     boolean reject = false;
     boolean accept = false;
+    // -------------------- Timeline Variable -------------------- //
+    Timeline timeline;
     // -------------------- Step Logs Variables -------------------- //
     int step = 0;
     // -------------------- Highlighter Range -------------------- //
@@ -58,6 +72,7 @@ public class Controller implements Initializable  {
     List<StepLogs> stepLogsList = new ArrayList<>();
     // -------------------- Panes -------------------- //
     public VirtualizedScrollPane vspMachineDef;
+    public GridPane gpMemoryPane;
     // -------------------- Code Area -------------------- //
     public CodeArea caMachineDef;
 
@@ -138,6 +153,29 @@ public class Controller implements Initializable  {
         tfInput.addEventFilter(MouseEvent.ANY, handler);
         tfOutput.addEventFilter(MouseEvent.ANY, handler);
 
+        ColumnConstraints ccLabel = new ColumnConstraints(40);
+        ColumnConstraints ccTextfield = new ColumnConstraints(350);
+        gpMemoryPane.getColumnConstraints().addAll(ccLabel, ccTextfield);
+        gpMemoryPane.setVgap(20);
+
+        gpMemoryPane.setPadding(new Insets(10, 10, 10, 10));
+
+//        gpMemoryPane.setGridLinesVisible(true);
+
+        for (int i = 0; i < 20; i++) {
+            RowConstraints rc = new RowConstraints();
+            rc.setPrefHeight(20);
+
+            gpMemoryPane.getRowConstraints().add(rc);
+
+            TextField tf = new TextField();
+            Label lbl = new Label("S" + i);
+
+            tf.addEventFilter(MouseEvent.ANY, handler);
+
+            gpMemoryPane.add(lbl, 0, i);
+            gpMemoryPane.add(tf, 1, i);
+        }
     }
 
 
@@ -306,36 +344,42 @@ public class Controller implements Initializable  {
     // Controls
     public void handleSetClick() {
         // set the input text to the text in the input string field
-        if (!tfInputString.getText().trim().equals("")) {
-            tfInput.setText("#" + tfInputString.getText().trim() + "#");
+        tfInput.setText("#" + tfInputString.getText().trim() + "#");
 
-            // highlight left-most #
-            tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
+        // highlight left-most #
+        tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
 
-            if (!tblRules.getItems().isEmpty()) {
-                // enable user controls
-                btnPlay.setDisable(false);
-                btnStep.setDisable(false);
-                btnReset.setDisable(false);
-            }
-        } else {
-            tfInput.setText("#...#");
-
-            btnPlay.setDisable(true);
-            btnStep.setDisable(true);
+        if (!tblRules.getItems().isEmpty()) {
+            // enable user controls
+            btnPlay.setDisable(false);
+            btnStep.setDisable(false);
+            btnReset.setDisable(false);
         }
+
     }
 
     public void handlePlayClick() {
-        System.out.println("Play");
+        // disable play buttons
+        btnPlay.setDisable(true);
+        btnEdit.setDisable(true);
+        btnStep.setDisable(true);
+        btnSet.setDisable(true);
 
-        memoryList.get(0).write("1");
-
-        updateTAMemory();
+        timeline = new Timeline(new KeyFrame(Duration.millis(300), e-> {
+            if (accept || reject)
+                timeline.stop();
+            else
+                handleStepClick();
+        })
+        );
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
     }
 
     public void handleResetClick() {
         System.out.println("Reset");
+        if (timeline != null)
+            timeline.stop();
         resetMachine();
     }
 
@@ -344,7 +388,6 @@ public class Controller implements Initializable  {
         if (!accept && !reject) {
             // disable play buttons
             btnPlay.setDisable(true);
-            btnReset.setDisable(true);
             btnEdit.setDisable(true);
             btnSet.setDisable(true);
 
@@ -510,6 +553,9 @@ public class Controller implements Initializable  {
             prevCharHL+=1;
             curCharHL+=1;
             curChar++;
+
+//            if (command.startsWith("RIGHT") && curCharHL == tfInput.getText().length())
+//                tfInput.setText(tfInput.getText() + "#");
         } else if (command.contains("LEFT") && prevCharHL > 0) {
             // move highlight tracker to the left
             prevCharHL-=1;
@@ -549,6 +595,8 @@ public class Controller implements Initializable  {
             btnReset.setDisable(false);
             btnStep.setDisable(true);
         } else {
+            if (curCommand.startsWith("RIGHT") && curCharHL == tfInput.getText().length())
+                tfInput.setText(tfInput.getText() + "#");
             // update highlight tracker
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #FFC107;");
         }
@@ -604,7 +652,9 @@ public class Controller implements Initializable  {
         btnStep.setDisable(true);
 
         btnSet.setDisable(false);
-        btnEdit.setDisable(false);
+
+        if (btnSave.isDisabled())
+            btnEdit.setDisable(false);
 
         // reset table
         tblRules.refresh();
