@@ -15,8 +15,12 @@ import java.util.List;
 public class MainParser {
     public static void main(String[] args)
     {
-        String myName = "#0011#";
-        System.out.println(myName.length());
+        List<String> list = new ArrayList<String>();
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        System.out.println(String.join("", list));
 //        try {
 //            CharStream cs = CharStreams.fromFileName("src/main/resources/MP_Grammar.txt");
 ////            InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));

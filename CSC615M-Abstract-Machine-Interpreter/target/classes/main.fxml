@@ -191,10 +191,5 @@
             <InlineCssTextField fx:id="tfOutput" alignment="CENTER" editable="false" prefHeight="70.0" prefWidth="1228.0" style="-fx-border-color: BLACK;" />
          </graphic>
       </Label>
-      <TextArea fx:id="taMemory" editable="false" layoutX="826.0" layoutY="199.0" prefHeight="226.0" prefWidth="418.0" wrapText="true">
-         <font>
-            <Font name="Courier New" size="14.0" />
-         </font>
-      </TextArea>
    </children>
 </AnchorPane>

@@ -4,7 +4,7 @@ grammar AMGrammar;
   *  Parser Rules
   */
 start           : data_section? logic_section EOF;
-data_section    : DATA (stack | queue | tape);
+data_section    : DATA (stack | queue | tape)+;
 stack           : (STACK stack_name)+;
 stack_name      : STACK_NAME;
 queue           : (QUEUE queue_name)+;

@@ -11,7 +11,10 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
@@ -19,6 +22,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -27,14 +31,10 @@ import org.fxmisc.richtext.InlineCssTextField;
 import org.fxmisc.richtext.LineNumberFactory;
 
 import javafx.scene.input.MouseEvent;
-import org.w3c.dom.Text;
 
 import java.net.URL;
 import java.security.Key;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class Controller implements Initializable  {
@@ -84,8 +84,6 @@ public class Controller implements Initializable  {
 
     // -------------------- Text Field -------------------- //
     public TextField tfInputString;
-    // -------------------- Text Area -------------------- //
-    public TextArea taMemory;
 
     // -------------------- Table View -------------------- //
     public TableView<Rule> tblRules;
@@ -152,30 +150,7 @@ public class Controller implements Initializable  {
         tblStepLogs.addEventFilter(MouseEvent.ANY, handler);
         tfInput.addEventFilter(MouseEvent.ANY, handler);
         tfOutput.addEventFilter(MouseEvent.ANY, handler);
-
-        ColumnConstraints ccLabel = new ColumnConstraints(40);
-        ColumnConstraints ccTextfield = new ColumnConstraints(350);
-        gpMemoryPane.getColumnConstraints().addAll(ccLabel, ccTextfield);
-        gpMemoryPane.setVgap(20);
-
-        gpMemoryPane.setPadding(new Insets(10, 10, 10, 10));
-
-//        gpMemoryPane.setGridLinesVisible(true);
-
-        for (int i = 0; i < 20; i++) {
-            RowConstraints rc = new RowConstraints();
-            rc.setPrefHeight(20);
-
-            gpMemoryPane.getRowConstraints().add(rc);
-
-            TextField tf = new TextField();
-            Label lbl = new Label("S" + i);
-
-            tf.addEventFilter(MouseEvent.ANY, handler);
-
-            gpMemoryPane.add(lbl, 0, i);
-            gpMemoryPane.add(tf, 1, i);
-        }
+        gpMemoryPane.addEventFilter(MouseEvent.ANY, handler);
     }
 
 
@@ -211,7 +186,7 @@ public class Controller implements Initializable  {
         tblRules.getItems().clear();
 
         // clear memory content
-        taMemory.clear();
+        gpMemoryPane.getChildren().clear();
         memoryList.clear();
 
         // clear init variables
@@ -301,13 +276,53 @@ public class Controller implements Initializable  {
             prevCharHL = 0;
             curCharHL = 1;
 
-            if (treeListener.getMemoryList().size() > 0)
-            {
-                // initialize memory
-                for (String name : treeListener.getMemoryList()) {
-                    if (!name.contains("T")) {
-                        initMemoryList.add(new Memory(name, new ArrayList<String>()));
-                        taMemory.setText(taMemory.getText() + name + ": []\n");
+            if (treeListener.getMemoryList().size() > 0) {
+                ColumnConstraints ccLabel = new ColumnConstraints(40);
+                ccLabel.setHalignment(HPos.CENTER);
+                ColumnConstraints ccTextfield = new ColumnConstraints(350);
+                gpMemoryPane.getColumnConstraints().addAll(ccLabel, ccTextfield);
+                gpMemoryPane.setVgap(20);
+
+                RowConstraints rc = new RowConstraints(30);
+                rc.setValignment(VPos.CENTER);
+
+
+                gpMemoryPane.setPadding(new Insets(10, 10, 10, 10));
+
+                boolean skip = true;
+                for (int i = 0; i < treeListener.getMemoryList().size(); i++) {
+                    String name = treeListener.getMemoryList().get(i);
+                    InlineCssTextField tf = new InlineCssTextField();
+                    tf.setStyle("-fx-font-family: courier new; -fx-font-size: 12pt;");
+                    Label lbl = new Label(name);
+
+                    if (!name.startsWith("T")) {
+                        gpMemoryPane.getRowConstraints().add(rc);
+
+                        if (!skip) {
+                            gpMemoryPane.add(lbl, 0, i - 1);
+                            gpMemoryPane.add(tf, 1, i - 1);
+                            initMemoryList.add(new Memory(i - 1, name, new ArrayList<String>()));
+                        } else {
+                            gpMemoryPane.add(lbl, 0, i);
+                            gpMemoryPane.add(tf, 1, i);
+                            initMemoryList.add(new Memory(i, name, new ArrayList<String>()));
+                        }
+                    } else if (name.startsWith("T")) {
+                        if (!skip) {
+                            gpMemoryPane.getRowConstraints().add(rc);
+
+                            Memory memory = new Memory(i - 1, name, new ArrayList<String>(Arrays.asList("#", "#")));
+                            initMemoryList.add(memory);
+                            tf.setText(initMemoryList.get(i-1).getMemory());
+                            tf.setStyle(memory.getPrevCharHL(), memory.getCurCharHL(),"-rtfx-background-color: #FFC107;");
+
+                            gpMemoryPane.add(lbl, 0, i - 1);
+                            gpMemoryPane.add(tf, 1, i - 1);
+
+                        } else {
+                            skip = false;
+                        }
                     }
                 }
 
@@ -441,11 +456,8 @@ public class Controller implements Initializable  {
                 // execute machine function based on current command
                 if (curCommand.startsWith("WRITE"))
                     write(mName);
-                 else
+                 else if (curCommand.startsWith("READ"))
                     read(mName);
-
-                // update the memory text area
-                updateTAMemory();
 
                 System.out.println("\nMTransition " + step + "\ncurState: " + curState + "\nnextStates: " + nextState
                         + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand
@@ -512,20 +524,30 @@ public class Controller implements Initializable  {
     }
     public void write(String mName) {
         for (Memory memory : memoryList) {
-            if (memory.getName().equals(mName) && curCommand.startsWith("WRITE")) {
+            if (memory.getName().equals(mName)) {
                 memory.write(curInput);
+                updateGPMemory(memory);
             }
         }
     }
 
     public void read(String mName) {
         for (Memory memory : memoryList) {
-            if (memory.getName().equals(mName) && curCommand.startsWith("READ")
-                    && mName.startsWith("S")) {
-                memory.stackRead();
-            } else if (memory.getName().equals(mName) && curCommand.startsWith("READ")
-                    && mName.startsWith("Q")) {
-                memory.queueRead();
+            if (memory.getName().equals(mName) && mName.startsWith("S")) {
+                if (memory.getMemory().trim().length() > 0) {
+                    memory.stackRead();
+                    updateGPMemory(memory);
+                } else {
+                    reject = true;
+                }
+
+            } else if (memory.getName().equals(mName) && mName.startsWith("Q")) {
+                if (memory.getMemory().trim().length() > 0) {
+                    memory.queueRead();
+                    updateGPMemory(memory);
+                } else {
+                    reject = true;
+                }
             }
         }
     }
@@ -538,10 +560,24 @@ public class Controller implements Initializable  {
         curState = nextState;
     }
 
-    public void updateTAMemory () {
-        taMemory.clear();
-        for (Memory memory: memoryList) {
-            taMemory.setText(taMemory.getText() + memory.getName() + ": " + memory.getMemory() + "\n");
+    public void updateGPMemory (Memory mem) {
+        for (Node child : gpMemoryPane.getChildren()) {
+            if (GridPane.getColumnIndex(child) == 1
+                    && GridPane.getRowIndex(child) == mem.getIndex()
+                    && child instanceof InlineCssTextField) {
+                ((InlineCssTextField) child).setText(mem.getMemory());
+            }
+        }
+    }
+
+    public void clearGPMemory () {
+        for (Node child : gpMemoryPane.getChildren()) {
+            if (GridPane.getColumnIndex(child) == 1 && child instanceof InlineCssTextField) {
+                ((InlineCssTextField) child).setText("");
+            }
+        }
+        for (Memory memory : initMemoryList) {
+            memory.resetMemory();
         }
     }
 
@@ -572,7 +608,7 @@ public class Controller implements Initializable  {
          * reject: #DC3545
          */
         // check if the next state is accept, reject, or neither
-        if (nextState.equals("accept")) {
+        if (accept || nextState.equals("accept")) {
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #28A745;");
             tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;-fx-background-color: #28A745");
 
@@ -583,7 +619,7 @@ public class Controller implements Initializable  {
             accept = true;
             btnReset.setDisable(false);
             btnStep.setDisable(true);
-        } else if (nextState.contains("reject") || nextState.equals("")) {
+        } else if (reject || nextState.contains("reject") || nextState.equals("")) {
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #DC3545;");
             tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;-fx-background-color: #DC3545");
 
@@ -627,9 +663,8 @@ public class Controller implements Initializable  {
 
         // reset memory
         memoryList.clear();
-        taMemory.clear();
+        clearGPMemory();
         memoryList.addAll(initMemoryList);
-        updateTAMemory();
 
         // initialize prev and next command
         nextCommand = initCommand;
@@ -638,6 +673,7 @@ public class Controller implements Initializable  {
 
         // clear logs
         tblStepLogs.getItems().clear();
+
 
         // reset input
         tfInput.setText("#...#");
