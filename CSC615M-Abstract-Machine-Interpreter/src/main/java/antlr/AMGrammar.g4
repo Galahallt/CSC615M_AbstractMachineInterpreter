@@ -57,17 +57,11 @@ INPUT       : {_input.LA(-1) == '('}? (LOWERCASE | UPPERCASE | NUMBER | SHARP) ;
 
 OUTPUT      : {_input.LA(-1) == '/'}? (LOWERCASE | UPPERCASE | NUMBER | SHARP) ;
 
-NEXT_STATE  : {_input.LA(-1) == ','}? (UPPERCASE NUMBER
-            | LOWERCASE NUMBER
-            | UPPERCASE
-            | LOWERCASE)+
+NEXT_STATE  : {_input.LA(-1) == ','}? ([a-zA-Z] [a-zA-Z0-9]*
             | 'accept'
-            | 'reject';
+            | 'reject');
 
-STATE_NAME  : (UPPERCASE NUMBER
-            | LOWERCASE NUMBER
-            | UPPERCASE
-            | LOWERCASE)+;
+STATE_NAME  : [a-zA-Z] [a-zA-Z0-9]*;
 
 READ        : 'READ(' (STACK_NAME | QUEUE_NAME) ')';
 WRITE       : 'WRITE(' (STACK_NAME | QUEUE_NAME) ')';
