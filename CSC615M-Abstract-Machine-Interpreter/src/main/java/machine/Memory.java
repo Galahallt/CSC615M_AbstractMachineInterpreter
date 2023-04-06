@@ -1,11 +1,13 @@
 package machine;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Memory {
     private int index;
     private String name;
     private List<String> inputs;
+    private int curChar = 0;
     private int prevCharHL = 0;
     private int curCharHL = 1;
 
@@ -24,6 +26,8 @@ public class Memory {
     public String getMemory() {
         return String.join("", inputs);
     }
+    public List<String> getMemoryList() { return inputs; }
+    public int getCurChar() { return curChar; }
 
     public int getPrevCharHL() {
         return prevCharHL;
@@ -34,9 +38,14 @@ public class Memory {
     }
 
     public void resetMemory() {
+        curChar = 0;
         prevCharHL = 0;
         curCharHL = 1;
         inputs.clear();
+
+        if (name.startsWith("T"))
+            inputs.addAll(Arrays.asList("#", "#"));
+
     }
 
     public void write(String input) {
@@ -53,15 +62,17 @@ public class Memory {
             this.inputs.remove(0);
     }
 
-    public void updateHighlight(String command, int length) {
-        if ((command.equals("SCAN") || command.contains("RIGHT")) && curCharHL < length) {
+    public void updateHighlight(String command) {
+        if ((command.equals("SCAN") || command.contains("RIGHT")) && curCharHL < inputs.size()) {
             // move highlight tracker to the right
             prevCharHL+=1;
             curCharHL+=1;
+            curChar++;
         } else if (command.contains("LEFT") && prevCharHL > 0) {
             // move highlight tracker to the left
             prevCharHL-=1;
             curCharHL-=1;
+            curChar--;
         }
     }
 

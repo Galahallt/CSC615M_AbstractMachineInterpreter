@@ -65,6 +65,8 @@ public class Controller implements Initializable  {
     String curCommand;
     String nextCommand;
     String initCommand;
+    // name of first tape memory
+    String initTape;
 
     // -------------------- List -------------------- //
     List<Memory> memoryList = new ArrayList<>();
@@ -182,6 +184,9 @@ public class Controller implements Initializable  {
         nextState = "";
         prevState = "";
 
+        // initialize tape memory
+        initTape = "";
+
         // clear contents of table view
         tblRules.getItems().clear();
 
@@ -204,7 +209,6 @@ public class Controller implements Initializable  {
         // set control buttons disable true
         btnPlay.setDisable(true);
         btnStep.setDisable(true);
-        btnReset.setDisable(true);
     }
 
     public void handleSaveClick() {
@@ -321,6 +325,7 @@ public class Controller implements Initializable  {
                             gpMemoryPane.add(tf, 1, i - 1);
 
                         } else {
+                            initTape = name;
                             skip = false;
                         }
                     }
@@ -339,7 +344,6 @@ public class Controller implements Initializable  {
                 System.out.println(tfInput.getText());
                 btnPlay.setDisable(false);
                 btnStep.setDisable(false);
-                btnReset.setDisable(false);
             }
 
             // set buttons disable false
@@ -417,7 +421,7 @@ public class Controller implements Initializable  {
                 }
             }
 
-            if (curCommand.startsWith("SCAN") || curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) {
+            if (curCommand.startsWith("SCAN")) {
                 // update highlighter trackers
                 updateHLTrackers(curCommand);
 
@@ -428,18 +432,20 @@ public class Controller implements Initializable  {
                 for (Rule rule: tblRules.getItems()) {
                     if (rule.getState().equals(curState) && rule.getInput().equals(curInput)) {
                         nextState = rule.getNextState();
-                        curOutput = rule.getOutput();
                     }
                 }
 
-                if ((curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) && !Objects.equals(curOutput, null)) {
-                    updateTape();
-                } else {
-                    // debug
-                    System.out.println("\nSTransition " + step + "\ncurState: " + curState + "\nnextState: " + nextState
-                            + "\ncurInput: " + curInput + "\ncurOutput: " + Objects.equals(curOutput, null) + "\ncurCommand: " + curCommand
-                            + "\ncurChar: " + curChar);
-                }
+                // debug
+                System.out.println("\nSTransition " + step + "\ncurState: " + curState + "\nnextState: " + nextState
+                        + "\ncurInput: " + curInput + "\ncurCommand: " + curCommand
+                        + "\ncurChar: " + curChar);
+
+                // update the state variables of the machine
+                updateState();
+
+                // update highlighter of input and output
+                updateGUIHighlighter();
+
             } else if (curCommand.startsWith("WRITE") || curCommand.startsWith("READ")) {
                 // get the rule for the current input and state then get the next state
                 for (Rule rule: tblRules.getItems()) {
@@ -463,6 +469,11 @@ public class Controller implements Initializable  {
                         + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand
                         +  "\ncurCommand: " + curCommand + "\ncurChar: " + curChar + "\nmName: " + mName);
 
+                // update the state variables of the machine
+                updateState();
+
+                // update highlighter of input and output
+                updateGUIHighlighter();
 
             } else if (curCommand.startsWith("PRINT")) {
                 // get the rule for the current input and state then get the next state
@@ -479,13 +490,46 @@ public class Controller implements Initializable  {
                         + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand
                         +  "\ncurCommand: " + curCommand + "\ncurChar: " + curChar);
 
+                // update the state variables of the machine
+                updateState();
+
+                // update highlighter of input and output
+                updateGUIHighlighter();
+
+            } else if (curCommand.startsWith("RIGHT") || curCommand.startsWith("LEFT")) {
+                String[] parseCommand = curCommand.split("\\(");
+
+                String mName = parseCommand[1].replace(")", "");
+
+                if (mName.equals(initTape)) {
+                    // update highlighter trackers
+                    updateHLTrackers(curCommand);
+
+                    // get the input that will be read
+                    curInput = String.valueOf(tfInput.getText().charAt(curChar));
+
+                }
+                else {
+                    curInput = updateTapeMemHLTrackers(mName, curCommand);
+                }
+
+                // get the rule for the current input and state then get the next state
+                for (Rule rule: tblRules.getItems()) {
+                    if (rule.getState().equals(curState) && rule.getInput().equals(curInput)) {
+                        nextState = rule.getNextState();
+                        curOutput = rule.getOutput();
+                    }
+                }
+
+                // update the main tape or tape memory
+                updateTape(mName);
+
+                // update the state variables of the machine
+                updateState();
+
+                // update main tape or tape memory gui
+                updateTapeMemGUI(mName);
             }
-
-            // update the state variables of the machine
-            updateState();
-
-            // update highlighter GUI
-            updateGUIHighlighter();
 
             // reset nextState
             nextState = "";
@@ -503,25 +547,34 @@ public class Controller implements Initializable  {
         return rules;
     }
 
-    // Step Logs Table
-    public ObservableList<StepLogs> getStepLogsList(List<StepLogs> stepLogsList) {
-        ObservableList<StepLogs> stepLogs = FXCollections.observableArrayList(stepLogsList);
-        return stepLogs;
-    }
-
     // -------------------- Machine Command -------------------- //
-    public void updateTape() {
-        String input = tfInput.getText();
-        String updatedTape = input.substring(0, curChar) + curOutput + input.substring(curChar + 1);
-        tfInput.setText(updatedTape);
+    public void updateTape(String mName) {
 
-        System.out.println("\nTTransition " + step + "\ncurStates: " + curState + "\nnextStates: " + nextState
-                + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand +  "\ncurCommand: " + curCommand
-                + "\nnextCommand: " + nextCommand + "\ncurChar: " + curChar + "\nupdatedTape: " + updatedTape);
+        if (!Objects.equals(curOutput, null)) {
+            if (mName.equals(initTape)) {
+                String input = tfInput.getText();
+                String updatedTape = input.substring(0, curChar) + curOutput + input.substring(curChar + 1);
+                tfInput.setText(updatedTape);
+            } else {
+                for (Memory memory : memoryList) {
+                    if (memory.getName().equals(mName)) {
+                        for (Node child : gpMemoryPane.getChildren()) {
+                            if (GridPane.getColumnIndex(child) == 1
+                                    && GridPane.getRowIndex(child) == memory.getIndex()
+                                    && child instanceof InlineCssTextField) {
+                                memory.getMemoryList().set(memory.getCurChar(), curOutput);
+                                ((InlineCssTextField) child).setText(memory.getMemory());
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // reset current output since not all states has output
         curOutput = null;
     }
+
     public void write(String mName) {
         for (Memory memory : memoryList) {
             if (memory.getName().equals(mName)) {
@@ -571,13 +624,127 @@ public class Controller implements Initializable  {
     }
 
     public void clearGPMemory () {
-        for (Node child : gpMemoryPane.getChildren()) {
-            if (GridPane.getColumnIndex(child) == 1 && child instanceof InlineCssTextField) {
-                ((InlineCssTextField) child).setText("");
-            }
-        }
+        memoryList.clear();
+
         for (Memory memory : initMemoryList) {
             memory.resetMemory();
+        }
+
+        memoryList.addAll(initMemoryList);
+
+        int rowIndex = 0;
+
+        for (Memory memory : memoryList) {
+
+            for (Node child : gpMemoryPane.getChildren()) {
+                if (GridPane.getColumnIndex(child) == 0 && child instanceof Label) {
+                    if (((Label) child).getText().equals(memory.getName())) {
+                        rowIndex = GridPane.getRowIndex(child);
+                    }
+
+                }
+            }
+
+            for (Node child : gpMemoryPane.getChildren()) {
+                if (GridPane.getColumnIndex(child) == 1 && child instanceof InlineCssTextField) {
+                    if (GridPane.getRowIndex(child) == rowIndex) {
+                        if (memory.getName().startsWith("T")) {
+                            ((InlineCssTextField) child).setText(memory.getMemory());
+                            // reset highlight
+                            ((InlineCssTextField) child).setStyle(0, memory.getMemoryList().size(),
+                                    "-rtfx-background-color: transparent;");
+                            // initialize starting highlight
+                            ((InlineCssTextField) child).setStyle(memory.getPrevCharHL(), memory.getCurCharHL(),
+                                    "-rtfx-background-color: #FFC107;");
+
+                        } else {
+                            ((InlineCssTextField) child).setText("");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public String updateTapeMemHLTrackers(String mName, String command) {
+        for (Memory memory : memoryList) {
+            if (memory.getName().equals(mName)) {
+                for (Node child : gpMemoryPane.getChildren()) {
+                    if (GridPane.getColumnIndex(child) == 1
+                            && GridPane.getRowIndex(child) == memory.getIndex()
+                            && child instanceof InlineCssTextField) {
+                        // clear style
+                        ((InlineCssTextField) child).clearStyle(memory.getPrevCharHL(), memory.getCurCharHL());
+                        // update memory HL indices
+                        memory.updateHighlight(command);
+
+                        return String.valueOf(((InlineCssTextField) child).getText().charAt(memory.getCurChar()));
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void updateTapeMemGUI (String mName) {
+        /**
+         * CSS Colors
+         * accept: #28A745
+         * reading: #FFC107
+         * reject: #DC3545
+         */
+        if (mName.equals(initTape)) {
+            updateGUIHighlighter();
+        } else {
+            for (Memory memory : memoryList) {
+                if (memory.getName().equals(mName)) {
+                    for (Node child : gpMemoryPane.getChildren()) {
+                        if (GridPane.getColumnIndex(child) == 1
+                                && GridPane.getRowIndex(child) == memory.getIndex()
+                                && child instanceof InlineCssTextField) {
+                            // check if the next state is accept, reject, or neither
+                            if (accept || nextState.equals("accept")) {
+                                ((InlineCssTextField) child).setStyle(memory.getPrevCharHL(), memory.getCurCharHL(),
+                                        "-rtfx-background-color: #28A745;");
+
+                                tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;"
+                                        + "-fx-border-color: BLACK;"
+                                        + "-fx-background-color: #28A745");
+
+                                // if the output field contains default string
+                                if (tfOutput.getText().trim().isEmpty())
+                                    tfOutput.setText("ACCEPT");
+
+                                accept = true;
+                                btnReset.setDisable(false);
+                                btnStep.setDisable(true);
+                            } else if (reject || nextState.contains("reject") || nextState.equals("")) {
+                                ((InlineCssTextField) child).setStyle(memory.getPrevCharHL(), memory.getCurCharHL(),
+                                        "-rtfx-background-color: #DC3545;");
+                                tfOutput.setStyle("-fx-font-family: courier new; "
+                                        + "-fx-font-size: 36pt;-fx-border-color: BLACK;"
+                                        + "-fx-background-color: #DC3545");
+
+                                // if the output field contains default string
+                                if (tfOutput.getText().trim().isEmpty())
+                                    tfOutput.setText("REJECT");
+
+                                reject = true;
+                                btnReset.setDisable(false);
+                                btnStep.setDisable(true);
+                            } else {
+                                if (curCommand.startsWith("RIGHT")
+                                        && memory.getCurCharHL() == memory.getMemoryList().size())
+                                    memory.getMemoryList().add("#");
+                                ((InlineCssTextField) child).setText(memory.getMemory());
+                                // update highlight tracker
+                                ((InlineCssTextField) child).setStyle(memory.getPrevCharHL(), memory.getCurCharHL(),
+                                        "-rtfx-background-color: #FFC107;");
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -662,9 +829,8 @@ public class Controller implements Initializable  {
         curState = initState;
 
         // reset memory
-        memoryList.clear();
         clearGPMemory();
-        memoryList.addAll(initMemoryList);
+
 
         // initialize prev and next command
         nextCommand = initCommand;
@@ -673,7 +839,6 @@ public class Controller implements Initializable  {
 
         // clear logs
         tblStepLogs.getItems().clear();
-
 
         // reset input
         tfInput.setText("#...#");
