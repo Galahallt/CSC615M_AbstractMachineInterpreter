@@ -539,7 +539,6 @@ public class Controller implements Initializable  {
                     // update the main tape or tape memory
                     updateTape(mName);
 
-
                 } else {
                     reject = true;
                 }
