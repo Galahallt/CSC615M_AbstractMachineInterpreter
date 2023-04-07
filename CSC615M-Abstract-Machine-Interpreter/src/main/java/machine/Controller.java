@@ -447,19 +447,30 @@ public class Controller implements Initializable  {
                 updateGUIHighlighter();
 
             } else if (curCommand.startsWith("WRITE") || curCommand.startsWith("READ")) {
-                // get the rule for the current input and state then get the next state
-                for (Rule rule: tblRules.getItems()) {
-                    if (rule.getState().equals(curState)) {
-                        curInput = rule.getInput();
-                        nextState = rule.getNextState();
-                    }
-                }
-
                 String[] parseCommand = curCommand.split("\\(");
 
                 String mName = parseCommand[1].replace(")", "");
 
+
+
                 if (isValidMemName(mName)) {
+                    Memory memory = getMemory(mName);
+
+                    // get the rule for the current input and state then get the next state
+                    for (Rule rule: tblRules.getItems()) {
+                        if(curCommand.startsWith("WRITE")) {
+                            if (rule.getState().equals(curState)) {
+                                curInput = rule.getInput();
+                                nextState = rule.getNextState();
+                            }
+                        } else if (curCommand.startsWith("READ")) {
+                            if (rule.getState().equals(curState) && rule.getInput().equals(memory.getNextCharacter())) {
+                                curInput = rule.getInput();
+                                nextState = rule.getNextState();
+                            }
+                        }
+                    }
+
                     // execute machine function based on current command
                     if (curCommand.startsWith("WRITE"))
                         write(mName);
@@ -613,6 +624,14 @@ public class Controller implements Initializable  {
                 return true;
         }
         return false;
+    }
+    public Memory getMemory(String mName) {
+        for (Memory memory : memoryList) {
+            if (memory.getName().equals(mName)) {
+                return memory;
+            }
+        }
+        return null;
     }
     public void updateState () {
         // save curState to prevState for table highlights
