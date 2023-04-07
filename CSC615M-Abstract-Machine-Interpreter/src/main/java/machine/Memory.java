@@ -1,5 +1,8 @@
 package machine;
 
+import org.apache.commons.lang.ArrayUtils;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,32 +51,48 @@ public class Memory {
 
     }
 
-    public void write(String input) {
-        this.inputs.add(input);
+    public void write(String input, String mName) {
+        if (mName.startsWith("S"))
+            inputs.add(input);
+        else if (mName.startsWith("Q")) {
+            List<String> temp = new ArrayList<String>();
+            temp.add(input);
+            temp.addAll(inputs);
+
+            inputs.clear();
+            inputs.addAll(temp);
+        }
+
     }
 
-    public void stackRead() {
-        if (this.inputs.size() > 0)
-            this.inputs.remove(inputs.size() - 1);
+    public String getNextCharacter () {
+        if (inputs.size() > 0){
+            return inputs.get(inputs.size() - 1);
+        }
+        return "";
     }
 
-    public void queueRead() {
-        if (this.inputs.size() > 0)
-            this.inputs.remove(0);
+    public void read() {
+        inputs.remove(inputs.size() - 1);
     }
 
-    public void updateHighlight(String command) {
+    public boolean updateHighlight(String command) {
         if ((command.equals("SCAN") || command.contains("RIGHT")) && curCharHL < inputs.size()) {
             // move highlight tracker to the right
             prevCharHL+=1;
             curCharHL+=1;
             curChar++;
-        } else if (command.contains("LEFT") && prevCharHL > 0) {
-            // move highlight tracker to the left
-            prevCharHL-=1;
-            curCharHL-=1;
-            curChar--;
+        } else if (command.contains("LEFT")) {
+            if (prevCharHL > 0) {
+                // move highlight tracker to the left
+                prevCharHL-=1;
+                curCharHL-=1;
+                curChar--;
+            } else {
+                return true;
+            }
         }
+        return false;
     }
 
     @Override

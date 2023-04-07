@@ -244,11 +244,11 @@ public class Controller implements Initializable  {
                         tblStepLogs.getItems().add(new StepLogs(step, rule.getInput(), rule.getOutput(),
                                 rule.getState(), rule.getNextState(), rule.getCommand()));
 
-                        if (rule.getNextState().equals("accept")) {
-                            setStyle("-fx-background-color: #28A745;");
-                        } else if (rule.getNextState().equals("reject")) {
+                         if (rule.getNextState().equals("reject") || reject) {
                             setStyle("-fx-background-color: #DC3545;");
-                        } else {
+                        } else if (rule.getNextState().equals("accept") || accept) {
+                             setStyle("-fx-background-color: #28A745;");
+                         } else {
                             setStyle("-fx-background-color: #FFC107;");
                         }
                     } else {
@@ -384,7 +384,7 @@ public class Controller implements Initializable  {
         btnStep.setDisable(true);
         btnSet.setDisable(true);
 
-        timeline = new Timeline(new KeyFrame(Duration.millis(300), e-> {
+        timeline = new Timeline(new KeyFrame(Duration.millis(200), e-> {
             if (accept || reject)
                 timeline.stop();
             else
@@ -459,11 +459,15 @@ public class Controller implements Initializable  {
 
                 String mName = parseCommand[1].replace(")", "");
 
-                // execute machine function based on current command
-                if (curCommand.startsWith("WRITE"))
-                    write(mName);
-                 else if (curCommand.startsWith("READ"))
-                    read(mName);
+                if (isValidMemName(mName)) {
+                    // execute machine function based on current command
+                    if (curCommand.startsWith("WRITE"))
+                        write(mName);
+                    else if (curCommand.startsWith("READ"))
+                        read(curInput, mName);
+                } else {
+                    reject = true;
+                }
 
                 System.out.println("\nMTransition " + step + "\ncurState: " + curState + "\nnextStates: " + nextState
                         + "\ncurInput: " + curInput + "\nprevCommand: " + prevCommand
@@ -474,7 +478,6 @@ public class Controller implements Initializable  {
 
                 // update highlighter of input and output
                 updateGUIHighlighter();
-
             } else if (curCommand.startsWith("PRINT")) {
                 // get the rule for the current input and state then get the next state
                 for (Rule rule: tblRules.getItems()) {
@@ -501,29 +504,34 @@ public class Controller implements Initializable  {
 
                 String mName = parseCommand[1].replace(")", "");
 
-                if (mName.equals(initTape)) {
-                    // update highlighter trackers
-                    updateHLTrackers(curCommand);
+                if (isValidMemName(mName) || mName.equals(initTape)) {
+                    if (mName.equals(initTape)) {
+                        // update highlighter trackers
+                        updateHLTrackers(curCommand);
 
-                    // get the input that will be read
-                    curInput = String.valueOf(tfInput.getText().charAt(curChar));
+                        // get the input that will be read
+                        curInput = String.valueOf(tfInput.getText().charAt(curChar));
 
-                }
-                else {
-                    curInput = updateTapeMemHLTrackers(mName, curCommand);
-                }
-
-                // get the rule for the current input and state then get the next state
-                for (Rule rule: tblRules.getItems()) {
-                    if (rule.getState().equals(curState) && rule.getInput().equals(curInput)) {
-                        nextState = rule.getNextState();
-                        curOutput = rule.getOutput();
                     }
+                    else {
+                        curInput = updateTapeMemHLTrackers(mName, curCommand);
+                    }
+
+                    // get the rule for the current input and state then get the next state
+                    for (Rule rule: tblRules.getItems()) {
+                        if (rule.getState().equals(curState) && rule.getInput().equals(curInput)) {
+                            nextState = rule.getNextState();
+                            curOutput = rule.getOutput();
+                        }
+                    }
+
+                    // update the main tape or tape memory
+                    updateTape(mName);
+
+
+                } else {
+                    reject = true;
                 }
-
-                // update the main tape or tape memory
-                updateTape(mName);
-
                 // update the state variables of the machine
                 updateState();
 
@@ -578,27 +586,20 @@ public class Controller implements Initializable  {
     public void write(String mName) {
         for (Memory memory : memoryList) {
             if (memory.getName().equals(mName)) {
-                memory.write(curInput);
+                memory.write(curInput, mName);
                 updateGPMemory(memory);
             }
         }
     }
 
-    public void read(String mName) {
+    public void read(String input, String mName) {
         for (Memory memory : memoryList) {
-            if (memory.getName().equals(mName) && mName.startsWith("S")) {
-                if (memory.getMemory().trim().length() > 0) {
-                    memory.stackRead();
+            if (memory.getName().equals(mName)) {
+                if (memory.getNextCharacter().equals(input) && memory.getMemory().trim().length() > 0) {
+                    memory.read();
                     updateGPMemory(memory);
                 } else {
-                    reject = true;
-                }
-
-            } else if (memory.getName().equals(mName) && mName.startsWith("Q")) {
-                if (memory.getMemory().trim().length() > 0) {
-                    memory.queueRead();
-                    updateGPMemory(memory);
-                } else {
+                    System.out.println("nextChar: " + memory.getNextCharacter());
                     reject = true;
                 }
             }
@@ -606,6 +607,13 @@ public class Controller implements Initializable  {
     }
 
     // -------------------- Update GUI -------------------- //
+    public boolean isValidMemName(String mName) {
+        for (Memory memory : memoryList) {
+            if (memory.getName().equals(mName))
+                return true;
+        }
+        return false;
+    }
     public void updateState () {
         // save curState to prevState for table highlights
         prevState = curState;
@@ -676,7 +684,7 @@ public class Controller implements Initializable  {
                         // clear style
                         ((InlineCssTextField) child).clearStyle(memory.getPrevCharHL(), memory.getCurCharHL());
                         // update memory HL indices
-                        memory.updateHighlight(command);
+                        reject = memory.updateHighlight(command);
 
                         return String.valueOf(((InlineCssTextField) child).getText().charAt(memory.getCurChar()));
                     }
@@ -693,7 +701,7 @@ public class Controller implements Initializable  {
          * reading: #FFC107
          * reject: #DC3545
          */
-        if (mName.equals(initTape)) {
+        if (mName.equals(initTape) || !isValidMemName(mName)) {
             updateGUIHighlighter();
         } else {
             for (Memory memory : memoryList) {
@@ -759,11 +767,15 @@ public class Controller implements Initializable  {
 
 //            if (command.startsWith("RIGHT") && curCharHL == tfInput.getText().length())
 //                tfInput.setText(tfInput.getText() + "#");
-        } else if (command.contains("LEFT") && prevCharHL > 0) {
-            // move highlight tracker to the left
-            prevCharHL-=1;
-            curCharHL-=1;
-            curChar--;
+        } else if (command.contains("LEFT")) {
+            if (prevCharHL > 0) {
+                // move highlight tracker to the left
+                prevCharHL-=1;
+                curCharHL-=1;
+                curChar--;
+            } else {
+                reject = true;
+            }
         }
     }
 
@@ -774,19 +786,9 @@ public class Controller implements Initializable  {
          * reading: #FFC107
          * reject: #DC3545
          */
+        System.out.println("accept: " + accept + "\nreject: " + reject);
         // check if the next state is accept, reject, or neither
-        if (accept || nextState.equals("accept")) {
-            tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #28A745;");
-            tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;-fx-background-color: #28A745");
-
-            // if the output field contains default string
-            if (tfOutput.getText().trim().isEmpty())
-                tfOutput.setText("ACCEPT");
-
-            accept = true;
-            btnReset.setDisable(false);
-            btnStep.setDisable(true);
-        } else if (reject || nextState.contains("reject") || nextState.equals("")) {
+        if (reject || nextState.contains("reject") || nextState.equals("")) {
             tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #DC3545;");
             tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;-fx-background-color: #DC3545");
 
@@ -795,6 +797,17 @@ public class Controller implements Initializable  {
                 tfOutput.setText("REJECT");
 
             reject = true;
+            btnReset.setDisable(false);
+            btnStep.setDisable(true);
+        } else if (accept || nextState.equals("accept")) {
+            tfInput.setStyle(prevCharHL, curCharHL,"-rtfx-background-color: #28A745;");
+            tfOutput.setStyle("-fx-font-family: courier new; -fx-font-size: 36pt;-fx-border-color: BLACK;-fx-background-color: #28A745");
+
+            // if the output field contains default string
+            if (tfOutput.getText().trim().isEmpty())
+                tfOutput.setText("ACCEPT");
+
+            accept = true;
             btnReset.setDisable(false);
             btnStep.setDisable(true);
         } else {
