@@ -241,9 +241,6 @@ public class Controller implements Initializable  {
                     if (rule == null) {
                         setStyle("");
                     } else if (prevState.equals(rule.getState()) && rule.getInput().equals(curInput)) {
-                        tblStepLogs.getItems().add(new StepLogs(step, rule.getInput(), rule.getOutput(),
-                                rule.getState(), rule.getNextState(), rule.getCommand()));
-
                          if (rule.getNextState().equals("reject") || reject) {
                             setStyle("-fx-background-color: #DC3545;");
                         } else if (rule.getNextState().equals("accept") || accept) {
@@ -551,6 +548,10 @@ public class Controller implements Initializable  {
 
             // reset nextState
             nextState = "";
+
+            // update step logs
+            tblStepLogs.getItems().add(new StepLogs(step, curInput, curOutput,
+                    prevState, curState, curCommand));
 
             // refresh table
             tblRules.refresh();
