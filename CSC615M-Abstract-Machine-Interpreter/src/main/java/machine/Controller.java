@@ -553,6 +553,9 @@ public class Controller implements Initializable  {
             tblStepLogs.getItems().add(new StepLogs(step, curInput, curOutput,
                     prevState, curState, curCommand));
 
+            // reset current output since not all states has output
+            curOutput = null;
+
             // refresh table
             tblRules.refresh();
         }
@@ -589,9 +592,6 @@ public class Controller implements Initializable  {
                 }
             }
         }
-
-        // reset current output since not all states has output
-        curOutput = null;
     }
 
     public void write(String mName) {
